@@ -3,45 +3,53 @@
     padding: 0;
     box-sizing: border-box;
     user-select: none;
+    /* Evita el resaltado azul/gris al tocar en móviles */
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    /* Evita el zoom por doble toque */
+    touch-action: manipulation;
 }
 
 body {
-    min-height: 100vh;
     background: #000000;
-    /* Fondo negro puro sin degradado */
     color: white;
     font-family: 'Creepster', cursive;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    overflow: hidden;
+    /* Evita el efecto rebote en iOS */
+    overscroll-behavior: none;
 }
 
 h1 {
     position: absolute;
-    top: 40px;
-    /* Un poco más abajo para que no choque con el contador */
+    top: 60px;
     width: 100%;
     text-align: center;
     font-family: 'Press Start 2P', cursive;
-    /* Fuente estilo Pokémon */
-    font-size: 2.2rem;
-    /* Reducido porque las letras pixeladas ocupan más espacio */
+    /* Letra pixelada */
+    font-size: clamp(1.2rem, 5vw, 2.5rem);
+    /* Se adapta al celular */
     color: #ffffff;
-    /* Blanco puro */
     letter-spacing: 2px;
     text-shadow: none;
-    /* Quitamos el brillo rojo */
     margin: 0;
+    padding: 0 10px;
+    line-height: 1.5;
 }
 
-/* Contador arriba a la izquierda, pixelado y transparente */
+/* Contador arriba a la izquierda */
 .score-container {
     position: absolute;
-    top: 25px;
-    left: 25px;
+    top: 20px;
+    left: 20px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -50,38 +58,53 @@ h1 {
 
 .score-label {
     font-family: 'Press Start 2P', cursive;
-    font-size: 0.8rem;
+    font-size: clamp(0.6rem, 2vw, 0.8rem);
     color: #888;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .score {
     font-family: 'Press Start 2P', cursive;
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 6vw, 2.5rem);
     color: #ffffff;
-    text-shadow: none;
-    /* Sin brillo para mantenerlo transparente y limpio */
 }
 
 .click-area {
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* === BOTÓN BASE === */
 .click-btn {
-    width: 200px;
-    height: 200px;
+    width: clamp(180px, 55vw, 250px);
+    height: clamp(180px, 55vw, 250px);
     border-radius: 50%;
     border: 4px solid #8b0000;
     background: radial-gradient(circle at 30% 30%, #ff4d4d, #8b0000, #300000);
     color: white;
     font-family: 'Creepster', cursive;
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
     cursor: pointer;
     box-shadow: 0 0 30px #ff0000, inset 0 0 20px #000;
-    /* Transición para que el cambio de color entre etapas sea suave */
     transition: transform 0.1s ease, background 0.5s ease, box-shadow 0.5s ease, border-color 0.5s ease;
     animation: pulse 1.5s infinite;
+
+    /* === SOLUCIÓN AL CUADRO AZUL EN MÓVILES === */
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-touch-callout: none;
+}
+
+/* Evita que al tocar y soltar, el navegador deje un borde de "enfoque" */
+.click-btn:focus,
+.click-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 30px #ff0000, inset 0 0 20px #000;
 }
 
 @keyframes pulse {
@@ -104,7 +127,6 @@ h1 {
 }
 
 /* === ETAPAS DEL BOTÓN === */
-
 /* 10 clicks: Calabaza */
 .stage-10 {
     background: radial-gradient(circle at 30% 30%, #ffaa00, #cc4400, #331100);
@@ -154,27 +176,4 @@ h1 {
     border-color: #ffffff;
     color: #000000;
     box-shadow: 0 0 60px #ffffff, inset 0 0 20px #ffffff;
-}
-
-/* Texto flotante */
-.floating {
-    position: absolute;
-    color: #ff3333;
-    font-family: 'Creepster', cursive;
-    font-size: 2rem;
-    pointer-events: none;
-    text-shadow: 0 0 10px #ff0000;
-    animation: floatUp 1s ease-out forwards;
-}
-
-@keyframes floatUp {
-    0% {
-        opacity: 1;
-        transform: translate(-50%, 0) scale(1);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translate(-50%, -100px) scale(1.5);
-    }
 }

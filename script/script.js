@@ -1,5 +1,5 @@
 const state = {
-    clicks: 0, // Siempre empezará en 0
+    clicks: 0, // Siempre empezará en 0 al recargar
 };
 
 const scoreEl = document.getElementById('score');
