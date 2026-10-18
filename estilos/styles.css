@@ -1,0 +1,180 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+body {
+    min-height: 100vh;
+    background: #000000;
+    /* Fondo negro puro sin degradado */
+    color: white;
+    font-family: 'Creepster', cursive;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden;
+}
+
+h1 {
+    position: absolute;
+    top: 40px;
+    /* Un poco más abajo para que no choque con el contador */
+    width: 100%;
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+    /* Fuente estilo Pokémon */
+    font-size: 2.2rem;
+    /* Reducido porque las letras pixeladas ocupan más espacio */
+    color: #ffffff;
+    /* Blanco puro */
+    letter-spacing: 2px;
+    text-shadow: none;
+    /* Quitamos el brillo rojo */
+    margin: 0;
+}
+
+/* Contador arriba a la izquierda, pixelado y transparente */
+.score-container {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: transparent;
+}
+
+.score-label {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.score {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 2rem;
+    color: #ffffff;
+    text-shadow: none;
+    /* Sin brillo para mantenerlo transparente y limpio */
+}
+
+.click-area {
+    position: relative;
+}
+
+/* === BOTÓN BASE === */
+.click-btn {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 4px solid #8b0000;
+    background: radial-gradient(circle at 30% 30%, #ff4d4d, #8b0000, #300000);
+    color: white;
+    font-family: 'Creepster', cursive;
+    font-size: 2rem;
+    cursor: pointer;
+    box-shadow: 0 0 30px #ff0000, inset 0 0 20px #000;
+    /* Transición para que el cambio de color entre etapas sea suave */
+    transition: transform 0.1s ease, background 0.5s ease, box-shadow 0.5s ease, border-color 0.5s ease;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.click-btn:active {
+    transform: scale(0.9);
+    animation: none;
+}
+
+/* === ETAPAS DEL BOTÓN === */
+
+/* 10 clicks: Calabaza */
+.stage-10 {
+    background: radial-gradient(circle at 30% 30%, #ffaa00, #cc4400, #331100);
+    border-color: #cc4400;
+    box-shadow: 0 0 40px #ffaa00, inset 0 0 20px #000;
+}
+
+/* 20 clicks: Poción de Bruja */
+.stage-20 {
+    background: radial-gradient(circle at 30% 30%, #b300ff, #4d0099, #1a0033);
+    border-color: #8000cc;
+    box-shadow: 0 0 40px #b300ff, inset 0 0 20px #000;
+}
+
+/* 40 clicks: Tóxico */
+.stage-40 {
+    background: radial-gradient(circle at 30% 30%, #33ff00, #118800, #002200);
+    border-color: #00cc00;
+    box-shadow: 0 0 40px #33ff00, inset 0 0 20px #000;
+}
+
+/* 60 clicks: Fantasmal */
+.stage-60 {
+    background: radial-gradient(circle at 30% 30%, #00ffff, #0066cc, #001133);
+    border-color: #00cccc;
+    box-shadow: 0 0 40px #00ffff, inset 0 0 20px #000;
+}
+
+/* 80 clicks: Fuego Demoníaco */
+.stage-80 {
+    background: radial-gradient(circle at 30% 30%, #ffff00, #ffaa00, #332200);
+    border-color: #ffcc00;
+    box-shadow: 0 0 50px #ffff00, inset 0 0 20px #000;
+}
+
+/* 100 clicks: El Vacío */
+.stage-100 {
+    background: #000000;
+    border-color: #ffffff;
+    color: #ffffff;
+    box-shadow: 0 0 40px #ffffff, inset 0 0 20px #333333;
+}
+
+/* 150 clicks: Alma Pura */
+.stage-150 {
+    background: radial-gradient(circle at 30% 30%, #ffffff, #cccccc, #666666);
+    border-color: #ffffff;
+    color: #000000;
+    box-shadow: 0 0 60px #ffffff, inset 0 0 20px #ffffff;
+}
+
+/* Texto flotante */
+.floating {
+    position: absolute;
+    color: #ff3333;
+    font-family: 'Creepster', cursive;
+    font-size: 2rem;
+    pointer-events: none;
+    text-shadow: 0 0 10px #ff0000;
+    animation: floatUp 1s ease-out forwards;
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -100px) scale(1.5);
+    }
+}
