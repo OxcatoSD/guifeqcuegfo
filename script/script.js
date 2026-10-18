@@ -1,18 +1,19 @@
 const state = {
-    clicks: 0, // Siempre empezará en 0 al recargar
+    clicks: 0, // Inicia en 0 y se reinicia al recargar la página
 };
 
 const scoreEl = document.getElementById('score');
 const clickBtn = document.getElementById('clickBtn');
 
-// Actualiza el número y revisa si debe cambiar de color el botón
+// Actualiza el número del contador y revisa el color del botón
 function updateUI() {
     scoreEl.textContent = Math.floor(state.clicks);
     updateButtonStage();
 }
 
-// Función que aplica las clases según los clics
+// Función que cambia el color del botón según la cantidad de clics
 function updateButtonStage() {
+    // Limpia las clases anteriores dejando solo la base
     clickBtn.className = 'click-btn';
 
     if (state.clicks >= 150) {
@@ -32,11 +33,11 @@ function updateButtonStage() {
     }
 }
 
-// Evento del click
+// Evento que suma un clic al presionar el botón
 clickBtn.addEventListener('click', () => {
     state.clicks += 1;
     updateUI();
 });
 
-// Iniciar
+// Iniciar el juego
 updateUI();
