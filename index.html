@@ -11,16 +11,31 @@
 
 <body>
 
+    <!-- PANTALLA DE INICIO PARA PEDIR EL NOMBRE -->
+    <div id="pantalla-inicio">
+        <h2>Lux World</h2>
+        <p>¿Cómo te llamas, cuidador?</p>
+        <input type="text" id="input-nombre" placeholder="Tu nombre..." maxlength="12" autocomplete="off">
+        <button id="btn-empezar">Comenzar</button>
+    </div>
+
     <div class="score-container">
         <span class="score-label">Pat-pats:</span>
         <div class="score" id="score">0</div>
+    </div>
+
+    <!-- TABLA DE RÉCORDS -->
+    <div class="leaderboard">
+        <h3>🏆 Récords</h3>
+        <ol id="leaderboard-list">
+            <!-- Se llena desde JS -->
+        </ol>
     </div>
 
     <h1>Acaricia a Hupibot</h1>
 
     <div class="click-area">
         <button class="click-btn" id="clickBtn">
-            <!-- Empezará con la primera imagen -->
             <img src="img/IMG-20261018-WA0030.jpg" id="btnImage" alt="Botón">
         </button>
     </div>
@@ -28,6 +43,7 @@
     <audio id="dogToySound" src="sound/freesound_community-squeaky-toy-1-6059.mp3" preload="auto"></audio>
 
     <script src="script/script.js"></script>
+
 </body>
 
 </html>
