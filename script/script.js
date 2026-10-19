@@ -30,7 +30,7 @@ window.addEventListener('load', () => {
         leaderboardList.innerHTML = ""; 
 
         if (records.length === 0) {
-            leaderboardList.innerHTML = "<li>Sin récords aún</li>";
+            leaderboardList.innerHTML = "<li>Sin récords</li>";
             return;
         }
 
@@ -54,7 +54,7 @@ window.addEventListener('load', () => {
                     let records = JSON.parse(localStorage.getItem('lux_records')) || [];
                     
                     records.push({ 
-                        nombre: datos.nombre, // Guarda el nombre de la partida anterior
+                        nombre: datos.nombre, // Guarda el nombre del jugador anterior
                         puntos: Number(datos.puntos) 
                     });
                     

@@ -6,7 +6,8 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     width: 100%;
     overflow: hidden;
@@ -36,7 +37,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 9999; /* Asegura que esté por encima de todo el juego */
+    z-index: 9999;
+    /* Asegura que esté por encima de todo el juego */
     padding: 20px;
 }
 
@@ -157,51 +159,97 @@ h1 {
 }
 
 /* === BRILLOS DE LAS ETAPAS === */
-.stage-50 { box-shadow: 0 0 40px #ff0000; border-radius: 50%; }
-.stage-100 { box-shadow: 0 0 40px #b300ff; border-radius: 50%; }
-.stage-160 { box-shadow: 0 0 40px #33ff00; border-radius: 50%; }
-.stage-200 { box-shadow: 0 0 40px #00ffff; border-radius: 50%; }
-.stage-280 { box-shadow: 0 0 50px #ffff00; border-radius: 50%; }
-.stage-340 { box-shadow: 0 0 40px #ffffff; border-radius: 50%; }
-.stage-500 { box-shadow: 0 0 60px #ffffff, 0 0 100px #ffffff; border-radius: 50%; }
+.stage-50 {
+    box-shadow: 0 0 40px #ff0000;
+    border-radius: 50%;
+}
 
-/* === TABLA DE CLASIFICACIÓN === */
+.stage-100 {
+    box-shadow: 0 0 40px #b300ff;
+    border-radius: 50%;
+}
+
+.stage-160 {
+    box-shadow: 0 0 40px #33ff00;
+    border-radius: 50%;
+}
+
+.stage-200 {
+    box-shadow: 0 0 40px #00ffff;
+    border-radius: 50%;
+}
+
+.stage-280 {
+    box-shadow: 0 0 50px #ffff00;
+    border-radius: 50%;
+}
+
+.stage-340 {
+    box-shadow: 0 0 40px #ffffff;
+    border-radius: 50%;
+}
+
+.stage-500 {
+    box-shadow: 0 0 60px #ffffff, 0 0 100px #ffffff;
+    border-radius: 50%;
+}
+
+/* === TABLA DE CLASIFICACIÓN (PC) === */
 .leaderboard {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    border: 2px solid #555;
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #00ffff;
     border-radius: 10px;
-    padding: 15px;
+    padding: 10px 15px;
     font-family: 'Press Start 2P', cursive;
     color: #fff;
-    min-width: 160px;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-    z-index: 10;
+    min-width: 140px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    z-index: 999;
 }
 
 .leaderboard h3 {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     color: #00ffff;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     text-align: center;
 }
 
 .leaderboard ol {
     padding-left: 20px;
-    font-size: 0.65rem;
+    font-size: 0.55rem;
     line-height: 2;
 }
 
-/* Adaptación para celulares */
+/* Adaptación para celulares y pantallas pequeñas */
 @media (max-width: 600px) {
     .leaderboard {
-        top: 60px;
-        right: 10px;
-        padding: 10px;
-        min-width: 120px;
+        position: fixed;
+        top: auto;
+        right: auto;
+        bottom: 20px;
+        /* Pegada abajo */
+        left: 50%;
+        transform: translateX(-50%);
+        /* Centrada perfectamente */
+
+        min-width: 180px;
+        padding: 8px 15px;
+        border-width: 1px;
     }
-    .leaderboard h3 { font-size: 0.6rem; margin-bottom: 8px; }
-    .leaderboard ol { font-size: 0.55rem; padding-left: 15px; }
+
+    .leaderboard h3 {
+        font-size: 0.55rem;
+        margin-bottom: 5px;
+    }
+
+    .leaderboard ol {
+        font-size: 0.5rem;
+        padding-left: 0;
+        list-style-position: inside;
+        line-height: 1.8;
+        text-align: center;
+    }
 }
