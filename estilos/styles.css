@@ -98,37 +98,38 @@ h1 {
 }
 
 /* === BRILLOS DE LAS ETAPAS === */
-.stage-10 {
-    box-shadow: 0 0 40px #ffaa00;
-    border-radius: 50%;
-}
 
-.stage-20 {
-    box-shadow: 0 0 40px #b300ff;
-    border-radius: 50%;
-}
-
-.stage-40 {
-    box-shadow: 0 0 40px #33ff00;
-    border-radius: 50%;
-}
-
-.stage-60 {
-    box-shadow: 0 0 40px #00ffff;
-    border-radius: 50%;
-}
-
-.stage-80 {
-    box-shadow: 0 0 50px #ffff00;
+.stage-50 {
+    box-shadow: 0 0 40px #ff0000;
     border-radius: 50%;
 }
 
 .stage-100 {
+    box-shadow: 0 0 40px #b300ff;
+    border-radius: 50%;
+}
+
+.stage-160 {
+    box-shadow: 0 0 40px #33ff00;
+    border-radius: 50%;
+}
+
+.stage-200 {
+    box-shadow: 0 0 40px #00ffff;
+    border-radius: 50%;
+}
+
+.stage-280 {
+    box-shadow: 0 0 50px #ffff00;
+    border-radius: 50%;
+}
+
+.stage-340 {
     box-shadow: 0 0 40px #ffffff;
     border-radius: 50%;
 }
 
-.stage-150 {
+.stage-500 {
     box-shadow: 0 0 60px #ffffff, 0 0 100px #ffffff;
     border-radius: 50%;
 }

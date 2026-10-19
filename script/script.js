@@ -40,9 +40,13 @@ function actualizarUI() {
 
     // Actualizamos el brillo de fondo (opcional, según el nivel)
     clickBtn.className = 'click-btn';
-    if (state.clicks >= 10) clickBtn.classList.add('stage-10');
-    if (state.clicks >= 20) clickBtn.classList.add('stage-20');
-    if (state.clicks >= 40) clickBtn.classList.add('stage-40');
+    if (state.clicks >= 50) clickBtn.classList.add('stage-50');
+    if (state.clicks >= 100) clickBtn.classList.add('stage-100');
+    if (state.clicks >= 160) clickBtn.classList.add('stage-160');
+    if (state.clicks >= 200) clickBtn.classList.add('stage-200');
+    if (state.clicks >= 280) clickBtn.classList.add('stage-280');
+    if (state.clicks >= 340) clickBtn.classList.add('stage-340');
+    if (state.clicks >= 500) clickBtn.classList.add('stage-500');
 }
 
 // === CUANDO SE PRESIONA EL BOTÓN ===
