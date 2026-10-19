@@ -5,7 +5,7 @@ window.addEventListener('load', () => {
     const btnImage = document.getElementById('btnImage');
     const squeakSound = document.getElementById('dogToySound');
     const leaderboardList = document.getElementById('leaderboard-list');
-    
+
     const pantallaInicio = document.getElementById('pantalla-inicio');
     const inputNombre = document.getElementById('input-nombre');
     const btnEmpezar = document.getElementById('btn-empezar');
@@ -19,13 +19,13 @@ window.addEventListener('load', () => {
     // === LÓGICA DE LA TABLA ===
     function cargarTablaLocal() {
         if (!leaderboardList) return;
-        
+
         let records = JSON.parse(localStorage.getItem('lux_records')) || [];
-        
+
         // Forzar el orden de mayor a menor
         records.sort((a, b) => Number(b.puntos) - Number(a.puntos));
-        
-        leaderboardList.innerHTML = ""; 
+
+        leaderboardList.innerHTML = "";
 
         if (records.length === 0) {
             leaderboardList.innerHTML = "<li>Sin récords aún</li>";
@@ -43,33 +43,33 @@ window.addEventListener('load', () => {
     function procesarSesionAnterior() {
         try {
             let sesionGuardada = sessionStorage.getItem('lux_sesion_actual');
-            
+
             if (sesionGuardada) {
                 // Recuperamos los datos de la sesión pasada (clics y nombre de ESE momento)
                 let datos = JSON.parse(sesionGuardada);
-                
+
                 // Si hizo más de 5 clics, lo guardamos en la tabla
                 if (datos.puntos > 5) {
                     let records = JSON.parse(localStorage.getItem('lux_records')) || [];
-                    
-                    records.push({ 
+
+                    records.push({
                         nombre: datos.nombre, // Usamos el nombre que estaba jugando, no el nuevo
-                        puntos: Number(datos.puntos) 
+                        puntos: Number(datos.puntos)
                     });
-                    
+
                     records.sort((a, b) => Number(b.puntos) - Number(a.puntos));
                     records = records.slice(0, 5); // Solo el Top 5
-                    
+
                     localStorage.setItem('lux_records', JSON.stringify(records));
                 }
-                
+
                 // Limpiamos la sesión para que la nueva partida empiece de cero
                 sessionStorage.removeItem('lux_sesion_actual');
             }
-            
+
             // Dibujamos la tabla actualizada
             cargarTablaLocal();
-        } catch(e) {
+        } catch (e) {
             console.warn("Error al procesar sesión");
         }
     }
@@ -85,7 +85,7 @@ window.addEventListener('load', () => {
         } else {
             playerName = nombreEscrito.substring(0, 12);
         }
-        
+
         pantallaInicio.style.display = 'none';
         juegoIniciado = true;
         actualizarUI();
@@ -125,24 +125,24 @@ window.addEventListener('load', () => {
 
     // === ACCIONES DEL BOTÓN ===
     clickBtn.addEventListener('pointerdown', (e) => {
-        if (!juegoIniciado) return; 
-        e.preventDefault(); 
+        if (!juegoIniciado) return;
+        e.preventDefault();
 
         btnImage.src = nivelActual.presionada;
         squeakSound.currentTime = 0;
         squeakSound.play().catch(error => { });
 
         state.clicks += 1;
-        
+
         try {
             // ¡AQUÍ ESTÁ EL TRUCO! Guardamos el nombre actual junto con los clics
             sessionStorage.setItem('lux_sesion_actual', JSON.stringify({
                 nombre: playerName,
                 puntos: state.clicks
             }));
-        } catch(e) {}
+        } catch (e) { }
 
-        actualizarUI(); 
+        actualizarUI();
         nivelActual = obtenerNivel(state.clicks);
     });
 

@@ -37,7 +37,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 100; /* Por encima de todo */
+    z-index: 100;
+    /* Por encima de todo */
     padding: 20px;
 }
 
@@ -155,13 +156,40 @@ h1 {
     pointer-events: none;
 }
 
-.stage-50 { box-shadow: 0 0 40px #ff0000; border-radius: 50%; }
-.stage-100 { box-shadow: 0 0 40px #b300ff; border-radius: 50%; }
-.stage-160 { box-shadow: 0 0 40px #33ff00; border-radius: 50%; }
-.stage-200 { box-shadow: 0 0 40px #00ffff; border-radius: 50%; }
-.stage-280 { box-shadow: 0 0 50px #ffff00; border-radius: 50%; }
-.stage-340 { box-shadow: 0 0 40px #ffffff; border-radius: 50%; }
-.stage-500 { box-shadow: 0 0 60px #ffffff, 0 0 100px #ffffff; border-radius: 50%; }
+.stage-50 {
+    box-shadow: 0 0 40px #ff0000;
+    border-radius: 50%;
+}
+
+.stage-100 {
+    box-shadow: 0 0 40px #b300ff;
+    border-radius: 50%;
+}
+
+.stage-160 {
+    box-shadow: 0 0 40px #33ff00;
+    border-radius: 50%;
+}
+
+.stage-200 {
+    box-shadow: 0 0 40px #00ffff;
+    border-radius: 50%;
+}
+
+.stage-280 {
+    box-shadow: 0 0 50px #ffff00;
+    border-radius: 50%;
+}
+
+.stage-340 {
+    box-shadow: 0 0 40px #ffffff;
+    border-radius: 50%;
+}
+
+.stage-500 {
+    box-shadow: 0 0 60px #ffffff, 0 0 100px #ffffff;
+    border-radius: 50%;
+}
 
 /* === TABLA DE CLASIFICACIÓN === */
 .leaderboard {
@@ -199,6 +227,14 @@ h1 {
         padding: 10px;
         min-width: 120px;
     }
-    .leaderboard h3 { font-size: 0.6rem; margin-bottom: 8px; }
-    .leaderboard ol { font-size: 0.55rem; padding-left: 15px; }
+
+    .leaderboard h3 {
+        font-size: 0.6rem;
+        margin-bottom: 8px;
+    }
+
+    .leaderboard ol {
+        font-size: 0.55rem;
+        padding-left: 15px;
+    }
 }
