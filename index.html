@@ -3,29 +3,29 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- Evita el zoom accidental en celulares -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lux World</title>
-    <!-- Fuentes pixeladas y de terror -->
     <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="estilos/styles.css">
 </head>
 
 <body>
 
-    <!-- Contador arriba a la izquierda -->
     <div class="score-container">
         <span class="score-label">Pat-pats:</span>
         <div class="score" id="score">0</div>
     </div>
 
-    <!-- Título pixelado y blanco -->
     <h1>Acaricia a Hupibot</h1>
 
-    <!-- Botón -->
     <div class="click-area">
-        <button class="click-btn" id="clickBtn">¡TÓCAME!</button>
+        <button class="click-btn" id="clickBtn">
+            <!-- Empezará con la primera imagen -->
+            <img src="img/IMG-20261018-WA0030.jpg" id="btnImage" alt="Botón">
+        </button>
     </div>
+
+    <audio id="dogToySound" src="sound/freesound_community-squeaky-toy-1-6059.mp3" preload="auto"></audio>
 
     <script src="script/script.js"></script>
 </body>

@@ -3,7 +3,6 @@
     padding: 0;
     box-sizing: border-box;
     user-select: none;
-    /* Evita el cuadro azul al tocar en móviles */
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -12,41 +11,33 @@ body {
     height: 100%;
     width: 100%;
     overflow: hidden;
-    /* Evita el zoom rápido */
     touch-action: manipulation;
 }
 
 body {
     background: #000000;
-    /* Fondo negro puro */
     color: white;
     font-family: 'Creepster', cursive;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* Evita el efecto rebote en iOS */
     overscroll-behavior: none;
 }
 
 h1 {
     position: absolute;
     top: 90px;
-    /* Bajado para no chocar con el contador */
     width: 100%;
     text-align: center;
     font-family: 'Press Start 2P', cursive;
-    /* Tamaño ajustable: más pequeño en celular */
     font-size: clamp(0.9rem, 4vw, 2rem);
     color: #ffffff;
     letter-spacing: 1px;
-    text-shadow: none;
     margin: 0;
     padding: 0 10px;
-    line-height: 1.5;
 }
 
-/* Contador */
 .score-container {
     position: absolute;
     top: 15px;
@@ -54,7 +45,6 @@ h1 {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    background: transparent;
 }
 
 .score-label {
@@ -77,104 +67,68 @@ h1 {
     align-items: center;
 }
 
-/* === BOTÓN BASE (Tamaño intacto) === */
+/* === BOTÓN === */
 .click-btn {
     width: clamp(180px, 55vw, 250px);
     height: clamp(180px, 55vw, 250px);
     border-radius: 50%;
-    border: 4px solid #8b0000;
-    background: radial-gradient(circle at 30% 30%, #ff4d4d, #8b0000, #300000);
-    color: white;
-    font-family: 'Creepster', cursive;
-    font-size: clamp(1.5rem, 6vw, 2.2rem);
+    background: transparent;
+    border: none;
+    padding: 0;
     cursor: pointer;
-    box-shadow: 0 0 30px #ff0000, inset 0 0 20px #000;
-    transition: transform 0.1s ease, background 0.5s ease, box-shadow 0.5s ease, border-color 0.5s ease;
-    animation: pulse 1.5s infinite;
-
-    /* Elimina el cuadro azul y estilos por defecto del móvil */
     outline: none;
-    -webkit-tap-highlight-color: transparent;
     -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
-    -webkit-touch-callout: none;
+    /* Quitamos la animación pulse para que no se mueva la imagen */
+    transition: transform 0.1s ease;
 }
 
-/* Evita el borde de enfoque */
-.click-btn:focus,
-.click-btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 30px #ff0000, inset 0 0 20px #000;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.05);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
+/* Efecto de encogerse un poquito al presionar */
 .click-btn:active {
-    transform: scale(0.9);
-    animation: none;
+    transform: scale(0.95);
 }
 
-/* === ETAPAS DEL BOTÓN === */
-/* 10 clicks: Calabaza */
+.click-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    pointer-events: none;
+    /* Evita que la imagen bloquee el clic */
+}
+
+/* === BRILLOS DE LAS ETAPAS === */
 .stage-10 {
-    background: radial-gradient(circle at 30% 30%, #ffaa00, #cc4400, #331100);
-    border-color: #cc4400;
-    box-shadow: 0 0 40px #ffaa00, inset 0 0 20px #000;
+    box-shadow: 0 0 40px #ffaa00;
+    border-radius: 50%;
 }
 
-/* 20 clicks: Poción de Bruja */
 .stage-20 {
-    background: radial-gradient(circle at 30% 30%, #b300ff, #4d0099, #1a0033);
-    border-color: #8000cc;
-    box-shadow: 0 0 40px #b300ff, inset 0 0 20px #000;
+    box-shadow: 0 0 40px #b300ff;
+    border-radius: 50%;
 }
 
-/* 40 clicks: Tóxico */
 .stage-40 {
-    background: radial-gradient(circle at 30% 30%, #33ff00, #118800, #002200);
-    border-color: #00cc00;
-    box-shadow: 0 0 40px #33ff00, inset 0 0 20px #000;
+    box-shadow: 0 0 40px #33ff00;
+    border-radius: 50%;
 }
 
-/* 60 clicks: Fantasmal */
 .stage-60 {
-    background: radial-gradient(circle at 30% 30%, #00ffff, #0066cc, #001133);
-    border-color: #00cccc;
-    box-shadow: 0 0 40px #00ffff, inset 0 0 20px #000;
+    box-shadow: 0 0 40px #00ffff;
+    border-radius: 50%;
 }
 
-/* 80 clicks: Fuego Demoníaco */
 .stage-80 {
-    background: radial-gradient(circle at 30% 30%, #ffff00, #ffaa00, #332200);
-    border-color: #ffcc00;
-    box-shadow: 0 0 50px #ffff00, inset 0 0 20px #000;
+    box-shadow: 0 0 50px #ffff00;
+    border-radius: 50%;
 }
 
-/* 100 clicks: El Vacío */
 .stage-100 {
-    background: #000000;
-    border-color: #ffffff;
-    color: #ffffff;
-    box-shadow: 0 0 40px #ffffff, inset 0 0 20px #333333;
+    box-shadow: 0 0 40px #ffffff;
+    border-radius: 50%;
 }
 
-/* 150 clicks: Alma Pura */
 .stage-150 {
-    background: radial-gradient(circle at 30% 30%, #ffffff, #cccccc, #666666);
-    border-color: #ffffff;
-    color: #000000;
-    box-shadow: 0 0 60px #ffffff, inset 0 0 20px #ffffff;
+    box-shadow: 0 0 60px #ffffff, 0 0 100px #ffffff;
+    border-radius: 50%;
 }
