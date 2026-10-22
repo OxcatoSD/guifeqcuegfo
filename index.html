@@ -31,9 +31,7 @@
     <!-- TABLA DE RÉCORDS (TOP 5) -->
     <div class="leaderboard">
         <h3>🏆 Récords</h3>
-        <ol id="leaderboard-list">
-            <!-- Se llena desde JS -->
-        </ol>
+        <ol id="leaderboard-list"></ol>
     </div>
 
     <h1>Acaricia a Hupibot</h1>
@@ -43,11 +41,14 @@
         <button class="click-btn" id="clickBtn">
             <img src="img/IMG-20261018-WA0030.jpg" id="btnImage" alt="Botón">
         </button>
+
+        <!-- NUEVA ANIMACIÓN LATERAL (Ruta actualizada a anima/hupi.webm) -->
+        <video src="anima/hupi.webm" id="sideVideo" class="side-animation" autoplay loop muted playsinline style="display: none;"></video>
     </div>
 
     <!-- SONIDO -->
     <audio id="dogToySound" src="sound/freesound_community-squeaky-toy-1-6059.mp3" preload="auto"></audio>
-
+    <audio id="crakckedSound" src="sound/audiopapkin-squeak-metal-ps-016-389413.mp3" preload="auto"></audio>
     <script src="script/script.js"></script>
 
 </body>

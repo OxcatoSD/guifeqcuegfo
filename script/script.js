@@ -5,37 +5,32 @@ window.addEventListener('load', () => {
     const clickBtn = document.getElementById('clickBtn');
     const btnImage = document.getElementById('btnImage');
     const squeakSound = document.getElementById('dogToySound');
+    const metalSound = document.getElementById('crakckedSound');
     const leaderboardList = document.getElementById('leaderboard-list');
     const fondoDiv = document.getElementById('fondo');
     const scoreLabel = document.querySelector('.score-label');
+    const sideVideo = document.getElementById('sideVideo'); 
 
     const pantallaInicio = document.getElementById('pantalla-inicio');
     const inputNombre = document.getElementById('input-nombre');
     const btnEmpezar = document.getElementById('btn-empezar');
 
     squeakSound.volume = 0.4;
+    metalSound.volume = 0.6; 
 
     // === ESTADO DEL JUEGO ===
     const state = { clicks: 0 };
     let playerName = "Anónimo";
     let juegoIniciado = false;
 
-    // === LÓGICA DE LA TABLA (A PRUEBA DE BUGS) ===
+    // === LÓGICA DE LA TABLA ===
     function cargarTablaLocal() {
         if (!leaderboardList) return;
-
         try {
             let records = JSON.parse(localStorage.getItem('lux_records')) || [];
-
-            // Filtro de seguridad: solo aceptar registros que tengan nombre y puntos válidos
             records = records.filter(r => r && r.nombre && !isNaN(r.puntos));
-
-            // Ordenar de mayor a menor forzando que se trate como números
             records.sort((a, b) => Number(b.puntos) - Number(a.puntos));
-
-            // Cortar a solo los 5 mejores (por si acaso hay más guardados)
             records = records.slice(0, 5);
-
             leaderboardList.innerHTML = "";
 
             if (records.length === 0) {
@@ -45,43 +40,31 @@ window.addEventListener('load', () => {
 
             records.forEach(record => {
                 const li = document.createElement("li");
-                // Si el nombre tiene "Cheat", le ponemos un emoji
                 let displayName = record.nombre.includes("Cheat") ? "🛠️ " + record.nombre.replace(" (Cheat)", "") : record.nombre;
                 li.textContent = `${displayName}: ${record.puntos}`;
                 leaderboardList.appendChild(li);
             });
         } catch (e) {
-            console.warn("Error al leer la tabla, limpiando memoria...");
             localStorage.removeItem('lux_records');
         }
     }
 
-    // === PROCESAR LA SESIÓN ANTERIOR ===
     function procesarSesionAnterior() {
         try {
             let sesionGuardada = sessionStorage.getItem('lux_sesion_actual');
             if (sesionGuardada) {
                 let datos = JSON.parse(sesionGuardada);
-
-                // Solo guardamos si hizo más de 5 clics
                 if (datos && datos.puntos > 5) {
                     let records = JSON.parse(localStorage.getItem('lux_records')) || [];
-                    records.push({
-                        nombre: String(datos.nombre),
-                        puntos: Number(datos.puntos)
-                    });
-
+                    records.push({ nombre: String(datos.nombre), puntos: Number(datos.puntos) });
                     records.sort((a, b) => Number(b.puntos) - Number(a.puntos));
                     records = records.slice(0, 5);
-
                     localStorage.setItem('lux_records', JSON.stringify(records));
                 }
                 sessionStorage.removeItem('lux_sesion_actual');
             }
             cargarTablaLocal();
-        } catch (e) {
-            console.warn("Error al procesar la sesión");
-        }
+        } catch (e) { }
     }
 
     procesarSesionAnterior();
@@ -104,11 +87,11 @@ window.addEventListener('load', () => {
     // ==========================================
     function abrirMenuTrampas() {
         if (!juegoIniciado) return;
-
         let codigo = prompt("🔐 MODO TRAMPAS\n\nEscribe:\n- Un número (ej. 1500)\n- 'max' (9999 clics)\n- 'reset' (Volver a 0)");
-
         if (codigo === null) return;
         codigo = codigo.toLowerCase().trim();
+
+        let limiteAnterior = nivelActual.limite;
 
         if (codigo === 'max') {
             state.clicks = 9999;
@@ -121,7 +104,12 @@ window.addEventListener('load', () => {
             return;
         }
 
-        // Guardamos la trampa en la sesión para que se registre en la tabla (con el nombre y Cheat)
+        nivelActual = obtenerNivel(state.clicks);
+        if (nivelActual.limite > limiteAnterior) {
+            metalSound.currentTime = 0;
+            metalSound.play().catch(error => { });
+        }
+
         try {
             sessionStorage.setItem('lux_sesion_actual', JSON.stringify({
                 nombre: playerName + " (Cheat)",
@@ -129,11 +117,9 @@ window.addEventListener('load', () => {
             }));
         } catch (e) { }
 
-        // Actualizamos la UI
         actualizarUI();
     }
 
-    // Atajo PC: Escribir "cheat"
     let bufferTeclas = "";
     window.addEventListener('keydown', (e) => {
         bufferTeclas += e.key.toLowerCase();
@@ -144,20 +130,16 @@ window.addEventListener('load', () => {
         if (bufferTeclas.length > 10) bufferTeclas = bufferTeclas.slice(1);
     });
 
-    // Atajo Celular: Tocar 3 veces "Pat-pats:"
     let toquesSeguidos = 0;
     let temporizadorToques;
     scoreLabel.addEventListener('click', () => {
         toquesSeguidos++;
         clearTimeout(temporizadorToques);
-
         if (toquesSeguidos >= 3) {
             toquesSeguidos = 0;
             abrirMenuTrampas();
         } else {
-            temporizadorToques = setTimeout(() => {
-                toquesSeguidos = 0;
-            }, 800);
+            temporizadorToques = setTimeout(() => { toquesSeguidos = 0; }, 800);
         }
     });
     // ==========================================
@@ -206,10 +188,30 @@ window.addEventListener('load', () => {
                 fondoActual = fondos[i];
             }
         }
-
         if (fondoDiv.style.backgroundImage !== `url("${fondoActual.ruta}")`) {
             fondoDiv.style.backgroundImage = `url('${fondoActual.ruta}')`;
         }
+
+        // 3. LÓGICA DE LA ANIMACIÓN LATERAL (A partir de 29 clics)
+        if (state.clicks >= 29) {
+            if (sideVideo.style.display === 'none' || sideVideo.style.display === '') {
+                sideVideo.style.display = 'block';
+                sideVideo.play().catch(e => {}); 
+            }
+        } else {
+            sideVideo.style.display = 'none';
+        }
+    }
+
+    // === EFECTO DE TEXTO FLOTANTE (+1) ===
+    function mostrarFlotante(x, y) {
+        const div = document.createElement('div');
+        div.className = 'floating-text';
+        div.textContent = '+1';
+        div.style.left = x + 'px';
+        div.style.top = y + 'px';
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 800);
     }
 
     // === ACCIONES DEL BOTÓN ===
@@ -217,11 +219,21 @@ window.addEventListener('load', () => {
         if (!juegoIniciado) return;
         e.preventDefault();
 
-        btnImage.src = nivelActual.presionada;
-        squeakSound.currentTime = 0;
-        squeakSound.play().catch(error => { });
+        mostrarFlotante(e.clientX, e.clientY);
 
+        let limiteAnterior = nivelActual.limite;
         state.clicks += 1;
+        nivelActual = obtenerNivel(state.clicks);
+
+        if (nivelActual.limite > limiteAnterior) {
+            metalSound.currentTime = 0;
+            metalSound.play().catch(error => { });
+        } else {
+            squeakSound.currentTime = 0;
+            squeakSound.play().catch(error => { });
+        }
+
+        btnImage.src = nivelActual.presionada;
 
         try {
             sessionStorage.setItem('lux_sesion_actual', JSON.stringify({
@@ -231,7 +243,6 @@ window.addEventListener('load', () => {
         } catch (e) { }
 
         actualizarUI();
-        nivelActual = obtenerNivel(state.clicks);
     });
 
     clickBtn.addEventListener('pointerup', () => {

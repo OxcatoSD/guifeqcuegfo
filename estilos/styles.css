@@ -33,14 +33,22 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    /* Se pone DETRÁS de todo */
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
     transition: background-image 0.8s ease-in-out;
-    /* Transición suave */
-    /* Filtro oscuro integrado para que la interfaz resalte */
     box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.6);
+    animation: kenburns 25s infinite alternate ease-in-out;
+}
+
+@keyframes kenburns {
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.1);
+    }
 }
 
 /* === PANTALLA DE INICIO === */
@@ -51,13 +59,11 @@ body {
     width: 100%;
     height: 100%;
     background: #000000;
-    /* Negro sólido para tapar el juego al inicio */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     z-index: 9999;
-    /* Por encima de todo */
     padding: 20px;
 }
 
@@ -120,7 +126,28 @@ h1 {
     letter-spacing: 1px;
     margin: 0;
     padding: 0 10px;
-    text-shadow: 2px 2px 4px #000;
+    animation: neon-flicker 4s infinite alternate;
+}
+
+@keyframes neon-flicker {
+
+    0%,
+    18%,
+    22%,
+    25%,
+    53%,
+    57%,
+    100% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #00ffff, 0 0 20px #00ffff;
+        opacity: 1;
+    }
+
+    20%,
+    24%,
+    55% {
+        text-shadow: none;
+        opacity: 0.5;
+    }
 }
 
 .score-container {
@@ -167,11 +194,26 @@ h1 {
     outline: none;
     -webkit-appearance: none;
     appearance: none;
-    transition: transform 0.1s ease;
+    animation: latido 2s infinite;
+}
+
+@keyframes latido {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.03);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .click-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.95) !important;
+    animation: none;
 }
 
 .click-btn img {
@@ -182,43 +224,78 @@ h1 {
     pointer-events: none;
 }
 
+/* === ANIMACIÓN LATERAL (Arriba a la derecha y más grande) === */
+.side-animation {
+    position: absolute;
+    /* Lo subimos hacia arriba y a la derecha */
+    top: -60px;
+    right: -70px;
+
+    /* Lo hacemos más grande que antes */
+    width: clamp(80px, 25vw, 120px);
+    height: clamp(80px, 25vw, 120px);
+
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* Ajuste para celulares */
+@media (max-width: 600px) {
+    .side-animation {
+        top: -50px;
+        right: -40px;
+        /* Ajuste de tamaño específico para no salirse de la pantalla pequeña */
+        width: 90px;
+        height: 90px;
+    }
+}
+
 /* === BRILLOS DE LAS ETAPAS === */
-.stage-50 {
-    box-shadow: 0 0 40px #ff0000;
+.stage-300 {
+    box-shadow: 0 0 40px #ffaa00;
     border-radius: 50%;
 }
 
-.stage-100 {
+.stage-700 {
     box-shadow: 0 0 40px #b300ff;
     border-radius: 50%;
 }
 
-.stage-160 {
+.stage-1100 {
     box-shadow: 0 0 40px #33ff00;
     border-radius: 50%;
 }
 
-.stage-200 {
-    box-shadow: 0 0 40px #00ffff;
+.stage-1500 {
+    box-shadow: 0 0 60px #00ffff, 0 0 100px #00ffff;
     border-radius: 50%;
 }
 
-.stage-280 {
-    box-shadow: 0 0 50px #ffff00;
-    border-radius: 50%;
+/* === TEXTO FLOTANTE DEL CLIC (+1) === */
+.floating-text {
+    position: absolute;
+    font-family: 'Press Start 2P', cursive;
+    color: #00ffff;
+    font-size: 1rem;
+    pointer-events: none;
+    text-shadow: 2px 2px 0 #000;
+    z-index: 100;
+    animation: flotarArriba 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-.stage-340 {
-    box-shadow: 0 0 40px #ffffff;
-    border-radius: 50%;
+@keyframes flotarArriba {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -150%) scale(1.5);
+    }
 }
 
-.stage-500 {
-    box-shadow: 0 0 60px #ffffff, 0 0 100px #ffffff;
-    border-radius: 50%;
-}
-
-/* === TABLA DE CLASIFICACIÓN (PC) === */
+/* === TABLA DE CLASIFICACIÓN === */
 .leaderboard {
     position: fixed;
     top: 15px;
@@ -247,7 +324,6 @@ h1 {
     line-height: 2;
 }
 
-/* Adaptación para celulares y pantallas pequeñas */
 @media (max-width: 600px) {
     .leaderboard {
         position: fixed;
