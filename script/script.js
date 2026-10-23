@@ -6,22 +6,140 @@ window.addEventListener('load', () => {
     const btnImage = document.getElementById('btnImage');
     const squeakSound = document.getElementById('dogToySound');
     const metalSound = document.getElementById('crakckedSound');
+    const rockSound = document.getElementById('rockSound');
     const leaderboardList = document.getElementById('leaderboard-list');
     const fondoDiv = document.getElementById('fondo');
     const scoreLabel = document.querySelector('.score-label');
-    const sideVideo = document.getElementById('sideVideo'); 
+    const sideImage = document.getElementById('sideImage');
+    const missionList = document.getElementById('mission-list');
+
+    // Ref para el botón de la tabla en móviles
+    const btnToggleLeaderboard = document.getElementById('btnToggleLeaderboard');
+    const leaderboardPanel = document.getElementById('leaderboardPanel');
 
     const pantallaInicio = document.getElementById('pantalla-inicio');
     const inputNombre = document.getElementById('input-nombre');
     const btnEmpezar = document.getElementById('btn-empezar');
 
     squeakSound.volume = 0.4;
-    metalSound.volume = 0.6; 
+    metalSound.volume = 0.6;
+    rockSound.volume = 1.0;
 
     // === ESTADO DEL JUEGO ===
     const state = { clicks: 0 };
     let playerName = "Anónimo";
     let juegoIniciado = false;
+
+    // === ESTADOS DEL MINI HUPIBOT ===
+    let temporizadorInactividad;
+    let ultimoClicTiempo = Date.now();
+    let clicsRapidos = 0;
+    let temporizadorEstadoMini;
+
+    const imagenesMini = {
+        idle: 'img/minihupibot/idle.png',
+        relaxing: 'img/minihupibot/relaxing.png',
+        study: 'img/minihupibot/study.png',
+        rock: 'img/minihupibot/rock.png'
+    };
+
+    Object.values(imagenesMini).forEach(ruta => {
+        const img = new Image();
+        img.src = ruta;
+    });
+
+    // === TOGGLE TABLA EN MÓVILES ===
+    btnToggleLeaderboard.addEventListener('click', () => {
+        leaderboardPanel.classList.toggle('show');
+    });
+
+    // === SISTEMA DE MISIONES ===
+    let misiones = [
+        { id: 'm1', texto: 'Da 50 pat-pats', meta: 50, actual: 0, completada: false },
+        { id: 'm2', texto: 'Llega a 300 pat-pats', meta: 300, actual: 0, completada: false },
+        { id: 'm3', texto: 'Haz rockear a Hupi', meta: 1, actual: 0, completada: false }
+    ];
+
+    function renderMisiones() {
+        missionList.innerHTML = '';
+        let activas = misiones.filter(m => !m.completada).slice(0, 2);
+
+        if (activas.length === 0) {
+            missionList.innerHTML = '<div class="mission-item completada" style="text-align:center;">¡Todo completado!</div>';
+            return;
+        }
+
+        activas.forEach(m => {
+            let porcentaje = Math.min((m.actual / m.meta) * 100, 100);
+            missionList.innerHTML += `
+                <div class="mission-item">
+                    <div class="mission-header">
+                        <span>${m.texto}</span>
+                        <span>${m.actual}/${m.meta}</span>
+                    </div>
+                    <div class="mission-bar-bg">
+                        <div class="mission-bar-fill" style="width: ${porcentaje}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function actualizarMisiones() {
+        misiones[0].actual = state.clicks;
+        misiones[1].actual = state.clicks;
+
+        misiones.forEach(m => {
+            if (!m.completada && m.actual >= m.meta) {
+                m.completada = true;
+            }
+        });
+        renderMisiones();
+    }
+
+    // ==========================================
+    // LÓGICA DE LAS IMÁGENES DEL MINI HUPIBOT
+    // ==========================================
+    function cambiarEstadoMiniHupi(estado, duracion = 0) {
+        if (sideImage.src.includes(estado)) return;
+
+        sideImage.src = imagenesMini[estado];
+
+        if (estado === 'relaxing') {
+            sideImage.classList.add('estado-relaxing');
+        } else {
+            sideImage.classList.remove('estado-relaxing');
+        }
+
+        clearTimeout(temporizadorEstadoMini);
+        if (duracion > 0) {
+            temporizadorEstadoMini = setTimeout(() => {
+                cambiarEstadoMiniHupi('idle');
+            }, duracion);
+        }
+    }
+
+    function resetearInactividad() {
+        clearTimeout(temporizadorInactividad);
+        temporizadorInactividad = setTimeout(() => {
+            if (juegoIniciado) cambiarEstadoMiniHupi('relaxing');
+        }, 5000);
+    }
+
+    sideImage.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!juegoIniciado) return;
+
+        cambiarEstadoMiniHupi('rock', 6000);
+
+        rockSound.currentTime = 0;
+        rockSound.play().catch(err => { });
+
+        misiones[2].actual = 1;
+        actualizarMisiones();
+
+        resetearInactividad();
+    });
 
     // === LÓGICA DE LA TABLA ===
     function cargarTablaLocal() {
@@ -80,6 +198,8 @@ window.addEventListener('load', () => {
         pantallaInicio.style.display = 'none';
         juegoIniciado = true;
         actualizarUI();
+        resetearInactividad();
+        renderMisiones();
     });
 
     // ==========================================
@@ -118,6 +238,7 @@ window.addEventListener('load', () => {
         } catch (e) { }
 
         actualizarUI();
+        actualizarMisiones();
     }
 
     let bufferTeclas = "";
@@ -174,14 +295,12 @@ window.addEventListener('load', () => {
         scoreEl.textContent = Math.floor(state.clicks);
         nivelActual = obtenerNivel(state.clicks);
 
-        // 1. Actualizar brillo del botón
         clickBtn.className = 'click-btn';
         if (state.clicks >= 300) clickBtn.classList.add('stage-300');
         if (state.clicks >= 700) clickBtn.classList.add('stage-700');
         if (state.clicks >= 1100) clickBtn.classList.add('stage-1100');
         if (state.clicks >= 1500) clickBtn.classList.add('stage-1500');
 
-        // 2. Actualizar la imagen de fondo
         let fondoActual = fondos[0];
         for (let i = 0; i < fondos.length; i++) {
             if (state.clicks >= fondos[i].limite) {
@@ -192,18 +311,15 @@ window.addEventListener('load', () => {
             fondoDiv.style.backgroundImage = `url('${fondoActual.ruta}')`;
         }
 
-        // 3. LÓGICA DE LA ANIMACIÓN LATERAL (A partir de 29 clics)
         if (state.clicks >= 29) {
-            if (sideVideo.style.display === 'none' || sideVideo.style.display === '') {
-                sideVideo.style.display = 'block';
-                sideVideo.play().catch(e => {}); 
+            if (sideImage.style.display === 'none' || sideImage.style.display === '') {
+                sideImage.style.display = 'block';
             }
         } else {
-            sideVideo.style.display = 'none';
+            sideImage.style.display = 'none';
         }
     }
 
-    // === EFECTO DE TEXTO FLOTANTE (+1) ===
     function mostrarFlotante(x, y) {
         const div = document.createElement('div');
         div.className = 'floating-text';
@@ -220,6 +336,22 @@ window.addEventListener('load', () => {
         e.preventDefault();
 
         mostrarFlotante(e.clientX, e.clientY);
+        resetearInactividad();
+
+        let ahora = Date.now();
+        if (ahora - ultimoClicTiempo < 300) {
+            clicsRapidos++;
+        } else {
+            clicsRapidos = 1;
+        }
+        ultimoClicTiempo = ahora;
+
+        if (clicsRapidos >= 10) {
+            cambiarEstadoMiniHupi('study', 4000);
+            clicsRapidos = 0;
+        } else if (!sideImage.src.includes('study') && !sideImage.src.includes('rock')) {
+            cambiarEstadoMiniHupi('idle');
+        }
 
         let limiteAnterior = nivelActual.limite;
         state.clicks += 1;
@@ -243,6 +375,7 @@ window.addEventListener('load', () => {
         } catch (e) { }
 
         actualizarUI();
+        actualizarMisiones();
     });
 
     clickBtn.addEventListener('pointerup', () => {

@@ -11,7 +11,6 @@
 
 <body>
 
-    <!-- CAPA EXCLUSIVA PARA EL FONDO -->
     <div id="fondo"></div>
 
     <!-- PANTALLA DE INICIO -->
@@ -28,27 +27,37 @@
         <div class="score" id="score">0</div>
     </div>
 
-    <!-- TABLA DE RÉCORDS (TOP 5) -->
-    <div class="leaderboard">
+    <!-- BOTÓN PARA MOSTRAR/OCULTAR TABLA (Solo visible en móviles) -->
+    <button id="btnToggleLeaderboard">🏆</button>
+
+    <!-- TABLA DE RÉCORDS -->
+    <div class="leaderboard" id="leaderboardPanel">
         <h3>🏆 Récords</h3>
         <ol id="leaderboard-list"></ol>
     </div>
 
     <h1>Acaricia a Hupibot</h1>
 
-    <!-- BOTÓN E IMAGEN -->
+    <!-- BOTÓN Y MINI HUPIBOT -->
     <div class="click-area">
         <button class="click-btn" id="clickBtn">
             <img src="img/IMG-20261018-WA0030.jpg" id="btnImage" alt="Botón">
         </button>
 
-        <!-- NUEVA ANIMACIÓN LATERAL (Ruta actualizada a anima/hupi.webm) -->
-        <video src="anima/hupi.webm" id="sideVideo" class="side-animation" autoplay loop muted playsinline style="display: none;"></video>
+        <img src="img/minihupibot/idle.png" id="sideImage" class="side-animation" style="display: none;"
+            alt="Mini Hupibot">
     </div>
 
-    <!-- SONIDO -->
+    <!-- BARRA DE MISIONES -->
+    <div id="mission-bar">
+        <div id="mission-list"></div>
+    </div>
+
+    <!-- SONIDOS -->
     <audio id="dogToySound" src="sound/freesound_community-squeaky-toy-1-6059.mp3" preload="auto"></audio>
     <audio id="crakckedSound" src="sound/audiopapkin-squeak-metal-ps-016-389413.mp3" preload="auto"></audio>
+    <audio id="rockSound" src="sound/rock.mp3" preload="auto"></audio>
+
     <script src="script/script.js"></script>
 
 </body>
