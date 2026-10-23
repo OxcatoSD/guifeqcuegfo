@@ -449,14 +449,14 @@ AJUSTES EXCLUSIVOS PARA CELULARES
         transform: scale(1.15);
         /* Zoom más sutil en móvil */
     }
-    
+
     .side-animation.estado-relaxing:hover {
                 top: 80px;
                         left: 15px;
         transform: scale(1.15);
         /* Zoom más sutil en móvil */
     }
-
+    
     .click-area {
         margin-bottom: 80px;
     }
