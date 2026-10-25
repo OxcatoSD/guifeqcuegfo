@@ -37,7 +37,16 @@ body {
     background-repeat: no-repeat;
     transition: background-image 0.8s ease-in-out;
     box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.6);
+    /* Filtro oscuro base para leer el texto */
     animation: kenburns 25s infinite alternate ease-in-out;
+}
+
+/* EL FONDO SE ROMPE (SE DETIENE Y DESALINEA) PERO MANTIENE SUS COLORES */
+#fondo.bg-roto {
+    transform: translate(15px, -10px) scale(1.05);
+    /* Se queda ligeramente corrido y más grande */
+    animation: none !important;
+    /* Detiene el efecto de zoom */
 }
 
 @keyframes kenburns {
@@ -242,14 +251,14 @@ h1 {
 }
 
 .side-animation.estado-relaxing {
-        left: 22%;
-        top: 46px;
+    left: 22%;
+    top: 46px;
     transform: scale(1.4);
 }
 
 .side-animation.estado-relaxing:hover {
-        left: 22%;
-        top: 46px;
+    left: 22%;
+    top: 46px;
     transform: scale(1.5);
 }
 
@@ -296,7 +305,6 @@ h1 {
     }
 }
 
-/* === BOTÓN DEL TROFEO (Oculto en PC) === */
 #btnToggleLeaderboard {
     display: none;
     position: fixed;
@@ -313,7 +321,6 @@ h1 {
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
 }
 
-/* === TABLA DE RÉCORDS === */
 .leaderboard {
     position: fixed;
     top: 15px;
@@ -342,7 +349,6 @@ h1 {
     line-height: 2;
 }
 
-/* === BARRA DE MISIONES === */
 #mission-bar {
     position: fixed;
     bottom: 20px;
@@ -397,26 +403,22 @@ h1 {
 }
 
 /* =========================================
-AJUSTES EXCLUSIVOS PARA CELULARES
+   AJUSTES EXCLUSIVOS PARA CELULARES
    ========================================= */
 @media (max-width: 600px) {
     #btnToggleLeaderboard {
         display: block;
-        /* Mostramos el botón del trofeo */
     }
 
     .leaderboard {
         top: 65px;
-        /* Debajo del botón */
         right: 15px;
         display: none;
-        /* OCULTA POR DEFECTO */
         animation: slideDown 0.2s ease-out;
     }
 
     .leaderboard.show {
         display: block;
-        /* SE MUESTRA AL APRETAR EL BOTÓN */
     }
 
     @keyframes slideDown {
@@ -444,26 +446,17 @@ AJUSTES EXCLUSIVOS PARA CELULARES
     }
 
     .side-animation.estado-relaxing {
-                top: 80px;
-                        left: 15px;
+        top: 80px;
+        left: 15px;
         transform: scale(1.15);
-        /* Zoom más sutil en móvil */
     }
 
-    .side-animation.estado-relaxing:hover {
-                top: 80px;
-                        left: 15px;
-        transform: scale(1.15);
-        /* Zoom más sutil en móvil */
-    }
-    
     .click-area {
         margin-bottom: 80px;
     }
 
     .click-btn {
         width: clamp(140px, 45vw, 190px);
-        /* Botón más pequeño */
         height: clamp(140px, 45vw, 190px);
     }
 
@@ -475,6 +468,95 @@ AJUSTES EXCLUSIVOS PARA CELULARES
 
     .mission-item {
         font-size: 0.5rem;
-        /* Letra más pequeña para que no se amontone */
+    }
+}
+
+/* =========================================
+   EFECTO GLITCH (Solo los cortes de pantalla)
+   ========================================= */
+#glitch-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0px, rgba(0, 0, 0, 0.4) 2px, transparent 2px, transparent 4px);
+    mix-blend-mode: hard-light;
+}
+
+#glitch-overlay.active {
+    animation: pixel-glitch 0.15s steps(2) 6;
+}
+
+@keyframes pixel-glitch {
+    0% {
+        opacity: 1;
+        transform: translate(0);
+        background-color: rgba(255, 0, 0, 0.6);
+        clip-path: inset(10% 0 80% 0);
+    }
+
+    20% {
+        transform: translate(-20px, 15px);
+        background-color: rgba(0, 255, 255, 0.6);
+        clip-path: inset(40% 0 30% 0);
+    }
+
+    40% {
+        transform: translate(25px, -15px);
+        background-color: rgba(0, 255, 0, 0.6);
+        clip-path: inset(70% 0 10% 0);
+    }
+
+    60% {
+        transform: translate(-25px, -20px);
+        background-color: rgba(255, 0, 255, 0.6);
+        clip-path: inset(20% 0 60% 0);
+    }
+
+    80% {
+        transform: translate(20px, 20px);
+        background-color: rgba(255, 255, 0, 0.6);
+        clip-path: inset(80% 0 5% 0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(0);
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+.glitch-text {
+    animation: text-glitch 0.2s steps(2) 4;
+}
+
+@keyframes text-glitch {
+    0% {
+        text-shadow: 6px 0 0 red, -6px 0 0 blue;
+        transform: translate(0);
+    }
+
+    25% {
+        text-shadow: -6px 0 0 red, 6px 0 0 blue;
+        transform: translate(5px, -3px);
+    }
+
+    50% {
+        text-shadow: 6px 0 0 red, -6px 0 0 blue;
+        transform: translate(-5px, 3px);
+    }
+
+    75% {
+        text-shadow: -6px 0 0 red, 6px 0 0 blue;
+        transform: translate(3px, 5px);
+    }
+
+    100% {
+        text-shadow: 6px 0 0 red, -6px 0 0 blue;
+        transform: translate(0);
     }
 }
