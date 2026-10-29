@@ -11,11 +11,9 @@
 
 <body>
 
-    <!-- Fondo y Efecto Glitch -->
     <div id="fondo"></div>
     <div id="glitch-overlay"></div>
 
-    <!-- PANTALLA DE INICIO -->
     <div id="pantalla-inicio">
         <h2>🔮 Lux World</h2>
         <p>¿Cómo te llamas, cuidador?</p>
@@ -23,14 +21,14 @@
         <button id="btn-empezar">Comenzar</button>
     </div>
 
-    <!-- CONTADOR -->
     <div class="score-container">
         <span class="score-label">Pat-pats:</span>
         <div class="score" id="score">0</div>
     </div>
 
-    <!-- BOTÓN PARA MOSTRAR/OCULTAR TABLA (Solo visible en móviles) -->
+    <!-- BOTONES MÓVILES -->
     <button id="btnToggleLeaderboard">🏆</button>
+    <button id="btnToggleInventory">🎒</button>
 
     <!-- TABLA DE RÉCORDS -->
     <div class="leaderboard" id="leaderboardPanel">
@@ -38,24 +36,36 @@
         <ol id="leaderboard-list"></ol>
     </div>
 
+    <!-- INVENTARIO (MOCHILA) -->
+    <div class="inventory" id="inventoryPanel">
+        <h3>🎒 Mochila</h3>
+        <div class="inv-grid">
+            <div class="inv-slot"></div>
+            <div class="inv-slot"></div>
+            <div class="inv-slot"></div>
+            <div class="inv-slot"></div>
+            <div class="inv-slot"></div>
+            <div class="inv-slot"></div>
+            <div class="inv-slot"></div>
+            <div class="inv-slot"></div>
+        </div>
+    </div>
+
     <h1>Acaricia a Hupibot</h1>
 
-    <!-- BOTÓN Y MINI HUPIBOT -->
     <div class="click-area">
         <button class="click-btn" id="clickBtn">
-            <img src="img/IMG-20261018-WA0030.jpg" id="btnImage" alt="Botón">
+            <img src="img/hupiframes/hupi frames 1.png" id="btnImage" alt="Botón">
         </button>
 
         <img src="img/minihupibot/idle.png" id="sideImage" class="side-animation" style="display: none;"
             alt="Mini Hupibot">
     </div>
 
-    <!-- BARRA DE MISIONES -->
     <div id="mission-bar">
         <div id="mission-list"></div>
     </div>
 
-    <!-- SONIDOS -->
     <audio id="dogToySound" src="sound/freesound_community-squeaky-toy-1-6059.mp3" preload="auto"></audio>
     <audio id="crakckedSound" src="sound/audiopapkin-squeak-metal-ps-016-389413.mp3" preload="auto"></audio>
     <audio id="rockSound" src="sound/rock.mp3" preload="auto"></audio>

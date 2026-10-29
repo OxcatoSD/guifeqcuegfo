@@ -1,4 +1,31 @@
 window.addEventListener("load", () => {
+  // ==========================================
+  // 🥚 EASTER EGGS
+  // ==========================================
+  const probabilidadInicio = Math.floor(Math.random() * 1000) + 1;
+  if (probabilidadInicio === 1) {
+    const pantallaInicio = document.getElementById("pantalla-inicio");
+    const tituloInicio = pantallaInicio.querySelector("h2");
+    const textoInicio = pantallaInicio.querySelector("p");
+    tituloInicio.textContent = "¿מן את?";
+    tituloInicio.style.color = "#ff0000";
+    tituloInicio.style.textShadow = "0 0 10px red, 0 0 20px darkred";
+    pantallaInicio.style.backgroundImage =
+      "url('img/background/IMG-20261019-WA0007.jpg')";
+    pantallaInicio.style.backgroundSize = "cover";
+    pantallaInicio.style.backgroundPosition = "center";
+    pantallaInicio.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    textoInicio.textContent = "nombra tu alma...";
+    textoInicio.style.color = "#ff3333";
+  }
+
+  const probabilidadJuego = Math.floor(Math.random() * 1000) + 1;
+  let easterEggJuegoActivo = false;
+  let clicsEasterEgg = 0;
+  const imgEasterNormal = "img/hupiframes/easteregg1.jpg";
+  const imgEasterPresionada = "img/hupiframes/easteregg2.jpg";
+  if (probabilidadJuego === 1) easterEggJuegoActivo = true;
+
   // === REFERENCIAS DEL DOM ===
   const scoreEl = document.getElementById("score");
   const clickBtn = document.getElementById("clickBtn");
@@ -12,18 +39,19 @@ window.addEventListener("load", () => {
   const sideImage = document.getElementById("sideImage");
   const missionList = document.getElementById("mission-list");
 
+  const btnToggleLeaderboard = document.getElementById("btnToggleLeaderboard");
+  const leaderboardPanel = document.getElementById("leaderboardPanel");
+  const btnToggleInventory = document.getElementById("btnToggleInventory");
+  const inventoryPanel = document.getElementById("inventoryPanel");
+
   const elementosUI = [
     document.querySelector("h1"),
     document.querySelector(".score-container"),
-    document.querySelector(".leaderboard"),
+    leaderboardPanel,
     document.querySelector("#mission-bar"),
   ];
-
   const glitchOverlay = document.getElementById("glitch-overlay");
   const tituloH1 = document.querySelector("h1");
-
-  const btnToggleLeaderboard = document.getElementById("btnToggleLeaderboard");
-  const leaderboardPanel = document.getElementById("leaderboardPanel");
 
   const pantallaInicio = document.getElementById("pantalla-inicio");
   const inputNombre = document.getElementById("input-nombre");
@@ -33,9 +61,7 @@ window.addEventListener("load", () => {
   metalSound.volume = 1.0;
   rockSound.volume = 1.0;
 
-  // ==========================================
-  // 🎵 SONIDO GRUESO Y EFECTO GLITCH CAÓTICO
-  // ==========================================
+  // === FUNCIONES DE SONIDO Y GLITCH ===
   function playThickMetalSound() {
     metalSound.currentTime = 0;
     metalSound.playbackRate = 0.7;
@@ -46,19 +72,13 @@ window.addEventListener("load", () => {
     glitchOverlay.classList.add("active");
     fondoDiv.classList.add("bg-roto");
     tituloH1.classList.add("glitch-text");
-
     elementosUI.forEach((el) => {
       el.style.transition = "none";
-      const randX = (Math.random() - 0.5) * 300;
-      const randY = (Math.random() - 0.5) * 300;
-      const randRot = (Math.random() - 0.5) * 45;
-      el.style.transform = `translate(${randX}px, ${randY}px) rotate(${randRot}deg)`;
+      el.style.transform = `translate(${(Math.random() - 0.5) * 300}px, ${(Math.random() - 0.5) * 300}px) rotate(${(Math.random() - 0.5) * 45}deg)`;
     });
-
     setTimeout(() => {
       glitchOverlay.classList.remove("active");
       tituloH1.classList.remove("glitch-text");
-
       elementosUI.forEach((el) => {
         el.style.transition = "none";
         el.style.transform = "";
@@ -66,21 +86,33 @@ window.addEventListener("load", () => {
     }, 800);
   }
 
+  // === DETECTOR DE AUTOCLICKER ===
+  let historialTiempos = [];
+  let bloqueadoPorAutoclicker = false;
+  function esAutoclicker() {
+    const ahora = performance.now();
+    historialTiempos.push(ahora);
+    if (historialTiempos.length > 10) historialTiempos.shift();
+    if (historialTiempos.length === 10) {
+      let difs = [];
+      for (let i = 1; i < historialTiempos.length; i++)
+        difs.push(historialTiempos[i] - historialTiempos[i - 1]);
+      if (Math.max(...difs) - Math.min(...difs) < 3) return true;
+    }
+    return false;
+  }
+
   // === ESTADO DEL JUEGO ===
   const state = { clicks: 0 };
   let playerName = "Anónimo";
   let juegoIniciado = false;
-
-  // === ESTADOS DEL MINI HUPIBOT ===
   let temporizadorInactividad;
   let ultimoClicTiempo = Date.now();
   let clicsRapidos = 0;
   let temporizadorEstadoMini;
-
-  // === CONTADORES GLOBALES PARA LAS MISIONES ===
-  let rockTotal = 0;
-  let studyTotal = 0;
-  let clicsRapidosTotales = 0;
+  let rockTotal = 0,
+    studyTotal = 0,
+    clicsRapidosTotales = 0;
 
   const imagenesMini = {
     idle: "img/minihupibot/idle.png",
@@ -88,23 +120,27 @@ window.addEventListener("load", () => {
     study: "img/minihupibot/study.png",
     rock: "img/minihupibot/rock.png",
   };
-
   Object.values(imagenesMini).forEach((ruta) => {
     const img = new Image();
     img.src = ruta;
   });
 
+  // === EVENTOS DE LOS BOTONES MÓVILES ===
   btnToggleLeaderboard.addEventListener("click", () => {
     leaderboardPanel.classList.toggle("show");
+    if (window.innerWidth <= 600) inventoryPanel.classList.remove("show");
   });
 
-  // ==========================================
-  // SISTEMA DE MISIONES PROGRESIVO (12 MISIONES)
-  // ==========================================
-  const nivelesClicks = [0, 300, 700, 1100, 1500];
+  btnToggleInventory.addEventListener("click", () => {
+    inventoryPanel.classList.toggle("show");
+    if (window.innerWidth <= 600) leaderboardPanel.classList.remove("show");
+  });
 
+  // === MISIONES ===
+  const nivelesClicks = [
+    0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100,
+  ];
   let misiones = [
-    // Nivel 0 (0 - 299)
     {
       id: "m_fast10",
       texto: "Da 10 clics rápidos",
@@ -122,16 +158,14 @@ window.addEventListener("load", () => {
       completada: false,
       nivelRequerido: 0,
       requiereHupi: true,
-    }, // Aparece a los 29 clics
-
-    // Nivel 1 (300 - 699)
+    },
     {
       id: "m_study1",
       texto: "Haz estudiar a Hupi",
       meta: 1,
       actual: 0,
       completada: false,
-      nivelRequerido: 1,
+      nivelRequerido: 2,
       requiereHupi: true,
     },
     {
@@ -140,7 +174,7 @@ window.addEventListener("load", () => {
       meta: 50,
       actual: 0,
       completada: false,
-      nivelRequerido: 1,
+      nivelRequerido: 2,
       requiereHupi: false,
     },
     {
@@ -149,18 +183,16 @@ window.addEventListener("load", () => {
       meta: 3,
       actual: 0,
       completada: false,
-      nivelRequerido: 1,
+      nivelRequerido: 3,
       requiereHupi: true,
     },
-
-    // Nivel 2 (700 - 1099)
     {
       id: "m_study3",
       texto: "Haz estudiar a Hupi 3 veces",
       meta: 3,
       actual: 0,
       completada: false,
-      nivelRequerido: 2,
+      nivelRequerido: 5,
       requiereHupi: true,
     },
     {
@@ -169,7 +201,7 @@ window.addEventListener("load", () => {
       meta: 150,
       actual: 0,
       completada: false,
-      nivelRequerido: 2,
+      nivelRequerido: 5,
       requiereHupi: false,
     },
     {
@@ -178,18 +210,16 @@ window.addEventListener("load", () => {
       meta: 6,
       actual: 0,
       completada: false,
-      nivelRequerido: 2,
+      nivelRequerido: 6,
       requiereHupi: true,
     },
-
-    // Nivel 3 (1100 - 1499)
     {
       id: "m_study5",
       texto: "Haz estudiar a Hupi 5 veces",
       meta: 5,
       actual: 0,
       completada: false,
-      nivelRequerido: 3,
+      nivelRequerido: 8,
       requiereHupi: true,
     },
     {
@@ -198,7 +228,7 @@ window.addEventListener("load", () => {
       meta: 300,
       actual: 0,
       completada: false,
-      nivelRequerido: 3,
+      nivelRequerido: 8,
       requiereHupi: false,
     },
     {
@@ -207,18 +237,16 @@ window.addEventListener("load", () => {
       meta: 10,
       actual: 0,
       completada: false,
-      nivelRequerido: 3,
+      nivelRequerido: 9,
       requiereHupi: true,
     },
-
-    // Nivel 4 (1500+)
     {
       id: "m_max",
       texto: "Alcanza el Nivel Máximo",
-      meta: 1500,
+      meta: 1100,
       actual: 0,
       completada: false,
-      nivelRequerido: 4,
+      nivelRequerido: 11,
       requiereHupi: false,
     },
   ];
@@ -234,8 +262,6 @@ window.addEventListener("load", () => {
   function renderMisiones() {
     missionList.innerHTML = "";
     let nivelActualIndex = obtenerIndiceNivel(state.clicks);
-
-    // 1. MISIÓN PRINCIPAL (Siempre visible)
     let sigNivelIndex = nivelActualIndex + 1;
     let misionPrincipalHtml = "";
 
@@ -246,32 +272,21 @@ window.addEventListener("load", () => {
         ((state.clicks - nivelesClicks[nivelActualIndex]) /
           (metaSiguiente - nivelesClicks[nivelActualIndex])) *
         100;
-
+      let nombreMision =
+        state.clicks >= 400
+          ? "💖 Que sienta tu amor"
+          : `⭐ Nivel ${sigNivelIndex + 1}`;
       misionPrincipalHtml = `
-                <div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;">
-                    <div class="mission-header">
-                        <span>⭐ Nivel ${sigNivelIndex + 1}</span>
-                        <span>Faltan ${faltantes}</span>
-                    </div>
-                    <div class="mission-bar-bg">
-                        <div class="mission-bar-fill" style="width: ${porcentaje}%; background: #ffcc00;"></div>
-                    </div>
-                </div>
-            `;
+        <div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;">
+            <div class="mission-header"><span>${nombreMision}</span><span>Faltan ${faltantes}</span></div>
+            <div class="mission-bar-bg"><div class="mission-bar-fill" style="width: ${porcentaje}%; background: #ffcc00;"></div></div>
+        </div>`;
     } else {
-      misionPrincipalHtml = `
-                <div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;">
-                    <div class="mission-header" style="color: #ffcc00;">
-                        <span>⭐ Nivel Máximo Alcanzado</span>
-                    </div>
-                </div>
-            `;
+      misionPrincipalHtml = `<div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;"><div class="mission-header" style="color: #ffcc00;"><span>💖 Nivel Máximo Alcanzado</span></div></div>`;
     }
 
-    // 2. MISIONES SECUNDARIAS (Filtramos por nivel y por visibilidad de Hupi)
     let secundariasActivas = misiones
       .filter((m) => {
-        // Si la misión requiere a Hupi, solo se muestra si state.clicks >= 29
         let hupiVisible = !m.requiereHupi || state.clicks >= 29;
         return (
           !m.completada && m.nivelRequerido <= nivelActualIndex && hupiVisible
@@ -283,19 +298,7 @@ window.addEventListener("load", () => {
       .map((m) => {
         let faltantes = m.meta - m.actual;
         let porcentaje = Math.min((m.actual / m.meta) * 100, 100);
-        let textoFaltante = faltantes === 1 ? `Falta 1` : `Faltan ${faltantes}`;
-
-        return `
-                <div class="mission-item">
-                    <div class="mission-header">
-                        <span>${m.texto}</span>
-                        <span>${textoFaltante}</span>
-                    </div>
-                    <div class="mission-bar-bg">
-                        <div class="mission-bar-fill" style="width: ${porcentaje}%"></div>
-                    </div>
-                </div>
-            `;
+        return `<div class="mission-item"><div class="mission-header"><span>${m.texto}</span><span>${faltantes === 1 ? "Falta 1" : "Faltan " + faltantes}</span></div><div class="mission-bar-bg"><div class="mission-bar-fill" style="width: ${porcentaje}%"></div></div></div>`;
       })
       .join("");
 
@@ -308,12 +311,8 @@ window.addEventListener("load", () => {
       if (m.id.includes("study")) m.actual = studyTotal;
       if (m.id.includes("fast")) m.actual = clicsRapidosTotales;
       if (m.id === "m_max") m.actual = state.clicks;
-
-      if (!m.completada && m.actual >= m.meta) {
-        m.completada = true;
-      }
+      if (!m.completada && m.actual >= m.meta) m.completada = true;
     });
-
     renderMisiones();
   }
 
@@ -321,24 +320,17 @@ window.addEventListener("load", () => {
   function cambiarEstadoMiniHupi(estado, duracion = 0) {
     if (sideImage.src.includes(estado)) return;
     sideImage.src = imagenesMini[estado];
-
-    if (estado === "relaxing") {
-      sideImage.classList.add("estado-relaxing");
-    } else {
-      sideImage.classList.remove("estado-relaxing");
-    }
-
+    sideImage.classList.toggle("estado-relaxing", estado === "relaxing");
     clearTimeout(temporizadorEstadoMini);
-    if (duracion > 0) {
-      temporizadorEstadoMini = setTimeout(() => {
-        cambiarEstadoMiniHupi("idle");
-      }, duracion);
-    }
+    if (duracion > 0)
+      temporizadorEstadoMini = setTimeout(
+        () => cambiarEstadoMiniHupi("idle"),
+        duracion,
+      );
   }
 
   function resetearInactividad() {
     clearTimeout(temporizadorInactividad);
-    // 120000 ms = 2 minutos exactos
     temporizadorInactividad = setTimeout(() => {
       if (juegoIniciado) cambiarEstadoMiniHupi("relaxing");
     }, 120000);
@@ -347,11 +339,9 @@ window.addEventListener("load", () => {
   sideImage.addEventListener("click", (e) => {
     e.preventDefault();
     if (!juegoIniciado) return;
-
     cambiarEstadoMiniHupi("rock", 6000);
     rockSound.currentTime = 0;
     rockSound.play().catch((err) => {});
-
     rockTotal++;
     actualizarMisiones();
     resetearInactividad();
@@ -366,18 +356,13 @@ window.addEventListener("load", () => {
       records.sort((a, b) => Number(b.puntos) - Number(a.puntos));
       records = records.slice(0, 5);
       leaderboardList.innerHTML = "";
-
       if (records.length === 0) {
         leaderboardList.innerHTML = "<li>Sin récords</li>";
         return;
       }
-
       records.forEach((record) => {
         const li = document.createElement("li");
-        let displayName = record.nombre.includes("Cheat")
-          ? "🛠️ " + record.nombre.replace(" (Cheat)", "")
-          : record.nombre;
-        li.textContent = `${displayName}: ${record.puntos}`;
+        li.textContent = `${record.nombre.includes("Cheat") ? "🛠️ " + record.nombre.replace(" (Cheat)", "") : record.nombre}: ${record.puntos}`;
         leaderboardList.appendChild(li);
       });
     } catch (e) {
@@ -397,21 +382,23 @@ window.addEventListener("load", () => {
             puntos: Number(datos.puntos),
           });
           records.sort((a, b) => Number(b.puntos) - Number(a.puntos));
-          records = records.slice(0, 5);
-          localStorage.setItem("lux_records", JSON.stringify(records));
+          localStorage.setItem(
+            "lux_records",
+            JSON.stringify(records.slice(0, 5)),
+          );
         }
         sessionStorage.removeItem("lux_sesion_actual");
       }
       cargarTablaLocal();
     } catch (e) {}
   }
-
   procesarSesionAnterior();
 
   btnEmpezar.addEventListener("click", () => {
-    let nombreEscrito = inputNombre.value.trim();
     playerName =
-      nombreEscrito === "" ? "Anónimo" : nombreEscrito.substring(0, 12);
+      inputNombre.value.trim() === ""
+        ? "Anónimo"
+        : inputNombre.value.trim().substring(0, 12);
     pantallaInicio.style.display = "none";
     juegoIniciado = true;
     actualizarUI();
@@ -419,17 +406,17 @@ window.addEventListener("load", () => {
     renderMisiones();
   });
 
+  // === MENÚ DE TRAMPAS ===
   function abrirMenuTrampas() {
     if (!juegoIniciado) return;
     let codigo = prompt(
-      "🔐 MODO TRAMPAS\n\nEscribe:\n- Un número (ej. 1500)\n- 'max' (9999 clics)\n- 'reset' (Volver a 0)",
+      "🔐 MODO TRAMPAS\n\nEscribe:\n- Un número (ej. 500)\n- 'max' (1100 clics)\n- 'reset' (Volver a 0)",
     );
     if (codigo === null) return;
     codigo = codigo.toLowerCase().trim();
-
     let limiteAnterior = nivelActual.limite;
 
-    if (codigo === "max") state.clicks = 9999;
+    if (codigo === "max") state.clicks = 1100;
     else if (codigo === "reset") {
       state.clicks = 0;
       rockTotal = 0;
@@ -450,7 +437,6 @@ window.addEventListener("load", () => {
       playThickMetalSound();
       triggerGlitch();
     }
-
     try {
       sessionStorage.setItem(
         "lux_sesion_actual",
@@ -460,13 +446,17 @@ window.addEventListener("load", () => {
         }),
       );
     } catch (e) {}
-
     actualizarUI();
     actualizarMisiones();
   }
 
   let bufferTeclas = "";
   window.addEventListener("keydown", (e) => {
+    // Atajo para abrir la mochila en PC (Teclas 'B' o 'I')
+    if (e.key.toLowerCase() === "b" || e.key.toLowerCase() === "i") {
+      inventoryPanel.classList.toggle("show");
+    }
+
     bufferTeclas += e.key.toLowerCase();
     if (bufferTeclas.includes("cheat")) {
       bufferTeclas = "";
@@ -475,8 +465,8 @@ window.addEventListener("load", () => {
     if (bufferTeclas.length > 10) bufferTeclas = bufferTeclas.slice(1);
   });
 
-  let toquesSeguidos = 0;
-  let temporizadorToques;
+  let toquesSeguidos = 0,
+    temporizadorToques;
   scoreLabel.addEventListener("click", () => {
     toquesSeguidos++;
     clearTimeout(temporizadorToques);
@@ -490,39 +480,79 @@ window.addEventListener("load", () => {
     }
   });
 
+  // === IMÁGENES Y FONDOS ===
   const niveles = [
     {
       limite: 0,
-      normal: "img/IMG-20261018-WA0030.jpg",
-      presionada: "img/IMG-20261018-WA0031.jpg",
+      normal: "img/hupiframes/hupi frames 1.png",
+      presionada: "img/hupiframes/hupi frames 2.png",
+    },
+    {
+      limite: 100,
+      normal: "img/hupiframes/hupi frames 3.png",
+      presionada: "img/hupiframes/hupi frames 4.png",
+    },
+    {
+      limite: 200,
+      normal: "img/hupiframes/hupi frames 5.png",
+      presionada: "img/hupiframes/hupi frames 6.png",
     },
     {
       limite: 300,
-      normal: "img/IMG-20261018-WA0032.jpg",
-      presionada: "img/IMG-20261018-WA0033.jpg",
+      normal: "img/hupiframes/hupi frames 7.png",
+      presionada: "img/hupiframes/hupi frames 8.png",
+    },
+    {
+      limite: 400,
+      normal: "img/hupiframes/hupi frames 9.png",
+      presionada: "img/hupiframes/hupi frames 10.png",
+    },
+    {
+      limite: 500,
+      normal: "img/hupiframes/hupi frames 11.png",
+      presionada: "img/hupiframes/hupi frames 12.png",
+    },
+    {
+      limite: 600,
+      normal: "img/hupiframes/hupi frames 13.png",
+      presionada: "img/hupiframes/hupi frames 14.png",
     },
     {
       limite: 700,
-      normal: "img/IMG-20261018-WA0034.jpg",
-      presionada: "img/IMG-20261018-WA0035.jpg",
+      normal: "img/hupiframes/hupi frames 15.png",
+      presionada: "img/hupiframes/hupi frames 16.png",
+    },
+    {
+      limite: 800,
+      normal: "img/hupiframes/hupi frames 17.png",
+      presionada: "img/hupiframes/hupi frames 18.png",
+    },
+    {
+      limite: 900,
+      normal: "img/hupiframes/hupi frames 19.png",
+      presionada: "img/hupiframes/hupi frames 20.png",
+    },
+    {
+      limite: 1000,
+      normal: "img/hupiframes/hupi frames 21.png",
+      presionada: "img/hupiframes/hupi frames 22.png",
     },
     {
       limite: 1100,
-      normal: "img/IMG-20261018-WA0036.jpg",
-      presionada: "img/IMG-20261018-WA0037.jpg",
+      normal: "img/hupiframes/hupi frames 23.png",
+      presionada: "img/hupiframes/hupi frames 24.png",
     },
   ];
 
   const fondos = [
     { limite: 0, ruta: "img/background/IMG-20261019-WA0003.jpg" },
-    { limite: 300, ruta: "img/background/IMG-20261019-WA0004.jpg" },
-    { limite: 700, ruta: "img/background/IMG-20261019-WA0005.jpg" },
-    { limite: 1100, ruta: "img/background/IMG-20261019-WA0006.jpg" },
-    { limite: 1500, ruta: "img/background/IMG-20261019-WA0007.jpg" },
+    { limite: 100, ruta: "img/background/IMG-20261019-WA0004.jpg" },
+    { limite: 200, ruta: "img/background/IMG-20261019-WA0005.jpg" },
+    { limite: 300, ruta: "img/background/IMG-20261019-WA0006.jpg" },
+    { limite: 400, ruta: "img/background/IMG-20261019-WA0007.jpg" },
   ];
 
   let nivelActual = niveles[0];
-
   function obtenerNivel(clicks) {
     let nivel = niveles[0];
     for (let i = 0; i < niveles.length; i++) {
@@ -535,39 +565,48 @@ window.addEventListener("load", () => {
     scoreEl.textContent = Math.floor(state.clicks);
     nivelActual = obtenerNivel(state.clicks);
 
-    clickBtn.className = "click-btn";
-    if (state.clicks >= 300) clickBtn.classList.add("stage-300");
-    if (state.clicks >= 700) clickBtn.classList.add("stage-700");
-    if (state.clicks >= 1100) clickBtn.classList.add("stage-1100");
-    if (state.clicks >= 1500) clickBtn.classList.add("stage-1500");
+    if (easterEggJuegoActivo) {
+      tituloH1.textContent = "no quiero amar";
+      tituloH1.style.color = "#ff0000";
+      tituloH1.style.textShadow = "0 0 10px red, 0 0 20px darkred";
+      fondoDiv.style.filter =
+        "sepia(1) hue-rotate(-50deg) saturate(2) brightness(0.5)";
+    } else {
+      clickBtn.className = "click-btn";
+      if (state.clicks < 500) {
+        if (state.clicks >= 100) clickBtn.classList.add("stage-300");
+        if (state.clicks >= 200) clickBtn.classList.add("stage-700");
+        if (state.clicks >= 300) clickBtn.classList.add("stage-1100");
+        if (state.clicks >= 400) clickBtn.classList.add("stage-1500");
 
-    let fondoActual = fondos[0];
-    for (let i = 0; i < fondos.length; i++) {
-      if (state.clicks >= fondos[i].limite) {
-        fondoActual = fondos[i];
+        let fondoActual = fondos[0];
+        for (let i = 0; i < fondos.length; i++) {
+          if (state.clicks >= fondos[i].limite) fondoActual = fondos[i];
+        }
+        if (fondoDiv.style.backgroundImage !== `url("${fondoActual.ruta}")`)
+          fondoDiv.style.backgroundImage = `url('${fondoActual.ruta}')`;
+        fondoDiv.style.backgroundColor = "transparent";
+      } else {
+        clickBtn.classList.add("square-btn");
+        fondoDiv.style.backgroundImage = "none";
+        fondoDiv.style.backgroundColor = "#000000";
       }
-    }
-
-    if (fondoDiv.style.backgroundImage !== `url("${fondoActual.ruta}")`) {
-      fondoDiv.style.backgroundImage = `url('${fondoActual.ruta}')`;
     }
 
     if (state.clicks >= 29) {
-      if (
-        sideImage.style.display === "none" ||
-        sideImage.style.display === ""
-      ) {
+      if (sideImage.style.display === "none" || sideImage.style.display === "")
         sideImage.style.display = "block";
-      }
     } else {
       sideImage.style.display = "none";
     }
   }
 
-  function mostrarFlotante(x, y) {
+  function mostrarFlotante(x, y, texto = "+1", color = "#00ffff") {
     const div = document.createElement("div");
     div.className = "floating-text";
-    div.textContent = "+1";
+    div.textContent = texto;
+    div.style.color = color;
+    div.style.textShadow = `2px 2px 0 #000`;
     div.style.left = x + "px";
     div.style.top = y + "px";
     document.body.appendChild(div);
@@ -578,12 +617,45 @@ window.addEventListener("load", () => {
     if (!juegoIniciado) return;
     e.preventDefault();
 
+    if (easterEggJuegoActivo) {
+      clicsEasterEgg++;
+      if (clicsEasterEgg >= 6) {
+        window.open("", "_self", "");
+        window.close();
+        setTimeout(() => {
+          document.body.innerHTML =
+            "<h1 style='color:white; font-family:sans-serif; text-align:center; margin-top:20%;'>El vacío te ha consumido.</h1>";
+        }, 100);
+        return;
+      }
+    }
+
+    if (esAutoclicker()) {
+      if (!bloqueadoPorAutoclicker) {
+        bloqueadoPorAutoclicker = true;
+        if (state.clicks >= 50) {
+          state.clicks -= 50;
+          mostrarFlotante(e.clientX, e.clientY, "-50", "#ff0000");
+        } else {
+          state.clicks = 0;
+          mostrarFlotante(e.clientX, e.clientY, "¡BOT!", "#ff0000");
+        }
+        playThickMetalSound();
+        triggerGlitch();
+        actualizarUI();
+        actualizarMisiones();
+        setTimeout(() => {
+          bloqueadoPorAutoclicker = false;
+        }, 2000);
+      }
+      return;
+    }
+
     mostrarFlotante(e.clientX, e.clientY);
     resetearInactividad();
 
     let ahora = Date.now();
     let esRapido = ahora - ultimoClicTiempo < 300;
-
     if (esRapido) {
       clicsRapidos++;
       clicsRapidosTotales++;
@@ -615,33 +687,32 @@ window.addEventListener("load", () => {
       squeakSound.play().catch((error) => {});
     }
 
-    btnImage.src = nivelActual.presionada;
+    if (easterEggJuegoActivo) btnImage.src = imgEasterPresionada;
+    else btnImage.src = nivelActual.presionada;
 
     try {
       sessionStorage.setItem(
         "lux_sesion_actual",
-        JSON.stringify({
-          nombre: playerName,
-          puntos: state.clicks,
-        }),
+        JSON.stringify({ nombre: playerName, puntos: state.clicks }),
       );
     } catch (e) {}
-
     actualizarUI();
     actualizarMisiones();
   });
 
   clickBtn.addEventListener("pointerup", () => {
     if (!juegoIniciado) return;
-    btnImage.src = nivelActual.normal;
+    if (easterEggJuegoActivo) btnImage.src = imgEasterNormal;
+    else btnImage.src = nivelActual.normal;
   });
 
   clickBtn.addEventListener("pointerleave", () => {
     if (!juegoIniciado) return;
-    btnImage.src = nivelActual.normal;
+    if (easterEggJuegoActivo) btnImage.src = imgEasterNormal;
+    else btnImage.src = nivelActual.normal;
   });
 
   // === INICIAR ===
-  btnImage.src = nivelActual.normal;
+  btnImage.src = niveles[0].normal;
   actualizarUI();
 });
