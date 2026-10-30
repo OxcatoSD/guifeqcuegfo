@@ -131,6 +131,9 @@ window.addEventListener("load", () => {
   let hammerFallTimer;
   let isSwinging = false;
 
+  let nextPrestigeThreshold = 8000;
+  let isAskingPrestige = false;
+
   const imagenesMini = {
     idle: "img/minihupibot/idle.png",
     relaxing: "img/minihupibot/relaxing.png",
@@ -148,6 +151,7 @@ window.addEventListener("load", () => {
   });
 
   btnToggleInventory.addEventListener("click", () => {
+    if (hammerActive) return;
     inventoryPanel.classList.toggle("show");
     if (window.innerWidth <= 600) leaderboardPanel.classList.remove("show");
   });
@@ -192,7 +196,8 @@ window.addEventListener("load", () => {
         hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
         clickPower = 1;
 
-        // SONIDO AL DESBLOQUEAR CON EL MARTILLO
+        inventoryPanel.classList.remove("show");
+
         levelUpSound.currentTime = 0;
         levelUpSound.play().catch((e) => {});
         triggerGlitch();
@@ -213,6 +218,8 @@ window.addEventListener("load", () => {
           hammerImage.style.transition = "none";
           hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
           clickPower = 1;
+
+          inventoryPanel.classList.remove("show");
         }
       }
       renderInventory();
@@ -522,29 +529,35 @@ window.addEventListener("load", () => {
     clickPower = 1;
     hammerActive = false;
     isSwinging = false;
+    nextPrestigeThreshold = 8000;
+    isAskingPrestige = false;
 
     renderInventory();
     actualizarUI();
     resetearInactividad();
     renderMisiones();
     btnImage.src = niveles[0].normal;
-    sideImage.style.display = "none"; // Aseguramos que se oculte al empezar
+    sideImage.style.display = "none";
   });
 
   function abrirMenuTrampas() {
     if (!juegoIniciado) return;
     let codigo = prompt(
-      "MODO TRAMPAS\n\nEscribe:\n- Un número (ej. 500)\n- 'max' (2000 clics)\n- 'reset' (Volver a 0)",
+      "MODO DESARROLLADOR\n\nEscribe:\n- Un número (ej. 500)\n- 'max' (2100 clics)\n- 'reset' (Volver a 0)",
     );
     if (codigo === null) return;
     codigo = codigo.toLowerCase().trim();
 
     if (codigo === "max") {
-      state.clicks = 2000;
+      state.clicks = 2100;
       unlockedLevel = 11;
-      targetClicks = 2100;
-      levelStartClicks = 2000;
+      targetClicks = 2200;
+      levelStartClicks = 2100;
       isLocked = false;
+      inventoryItems = [];
+      hammerActive = false;
+      hammerImage.style.display = "none";
+      clickPower = 1;
     } else if (codigo === "reset") {
       state.clicks = 0;
       unlockedLevel = 0;
@@ -556,25 +569,109 @@ window.addEventListener("load", () => {
       rockTotal = 0;
       studyTotal = 0;
       clicsRapidosTotales = 0;
+      nextPrestigeThreshold = 8000;
+      isAskingPrestige = false;
+      hammerActive = false;
+      hammerImage.style.display = "none";
       misiones.forEach((m) => {
         m.completada = false;
         m.actual = 0;
       });
       renderInventory();
     } else if (!isNaN(codigo) && codigo !== "") {
-      state.clicks = parseInt(codigo);
-      if (state.clicks < 1250) {
-        unlockedLevel = Math.floor(state.clicks / 250);
-        levelStartClicks = unlockedLevel * 250;
-        targetClicks = (unlockedLevel + 1) * 250;
+      let target = parseInt(codigo);
+
+      inventoryItems = [];
+      hammerActive = false;
+      hammerImage.style.display = "none";
+      isLocked = false;
+      clickPower = 1;
+      state.clicks = target;
+
+      if (state.clicks < 250) {
+        unlockedLevel = 0;
+        levelStartClicks = 0;
+        targetClicks = 250;
+      } else if (state.clicks < 500) {
+        unlockedLevel = 1;
+        levelStartClicks = 250;
+        targetClicks = 500;
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
+      } else if (state.clicks < 750) {
+        unlockedLevel = 2;
+        levelStartClicks = 500;
+        targetClicks = 750;
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
+      } else if (state.clicks < 1000) {
+        unlockedLevel = 3;
+        levelStartClicks = 750;
+        targetClicks = 1000;
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
+        inventoryItems.push({
+          name: "Matamoscas",
+          type: "flyswatter",
+          img: "img/matamoscas.png",
+          equipped: false,
+        });
+      } else if (state.clicks < 1250) {
+        unlockedLevel = 4;
+        levelStartClicks = 1000;
+        targetClicks = 1250;
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
+        inventoryItems.push({
+          name: "Matamoscas",
+          type: "flyswatter",
+          img: "img/matamoscas.png",
+          equipped: false,
+        });
       } else {
         unlockedLevel = 5 + Math.floor((state.clicks - 1250) / 100);
         if (unlockedLevel > 11) unlockedLevel = 11;
         levelStartClicks = 1250 + (unlockedLevel - 5) * 100;
         targetClicks = 1250 + (unlockedLevel - 4) * 100;
         if (targetClicks <= state.clicks) targetClicks = state.clicks + 100;
+
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
+        inventoryItems.push({
+          name: "Matamoscas",
+          type: "flyswatter",
+          img: "img/matamoscas.png",
+          equipped: false,
+        });
+        inventoryItems.push({
+          name: "Martillo",
+          type: "hammer",
+          img: "img/martillo.png",
+          equipped: false,
+        });
       }
-      isLocked = false;
+
+      renderInventory();
     } else {
       alert("Código no válido.");
       return;
@@ -587,32 +684,48 @@ window.addEventListener("load", () => {
     btnImage.src = niveles[Math.min(unlockedLevel, 11)].normal;
   }
 
-  let bufferTeclas = "";
+  // ==========================================
+  // 🛠️ NUEVOS MÉTODOS OCULTOS PARA EL MODO DESARROLLADOR
+  // ==========================================
+
+  // 1. Atajo de teclado: Ctrl + Shift + C (Windows/Linux) o Cmd + Shift + C (Mac)
   window.addEventListener("keydown", (e) => {
-    if (e.key.toLowerCase() === "b" || e.key.toLowerCase() === "i")
-      inventoryPanel.classList.toggle("show");
-    bufferTeclas += e.key.toLowerCase();
-    if (bufferTeclas.includes("cheat")) {
-      bufferTeclas = "";
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "c") {
+      e.preventDefault(); // Evita que se abra la consola del navegador
       abrirMenuTrampas();
     }
-    if (bufferTeclas.length > 10) bufferTeclas = bufferTeclas.slice(1);
+
+    // Mantener el atajo de la B para la mochila
+    if (e.key.toLowerCase() === "b" || e.key.toLowerCase() === "i") {
+      if (!hammerActive) inventoryPanel.classList.toggle("show");
+    }
   });
 
-  let toquesSeguidos = 0,
-    temporizadorToques;
-  scoreLabel.addEventListener("click", () => {
-    toquesSeguidos++;
-    clearTimeout(temporizadorToques);
-    if (toquesSeguidos >= 3) {
-      toquesSeguidos = 0;
+  // 2. Mantener presionado el título "Acaricia a Hupibot" durante 3 segundos
+  let pressTimer;
+  const tiempoPresionado = 3000; // 3 segundos
+
+  tituloH1.addEventListener("pointerdown", (e) => {
+    if (!juegoIniciado) return;
+
+    // Cambio visual sutil (opcional) para saber que está cargando
+    tituloH1.style.color = "#ff3333";
+
+    pressTimer = setTimeout(() => {
       abrirMenuTrampas();
-    } else {
-      temporizadorToques = setTimeout(() => {
-        toquesSeguidos = 0;
-      }, 800);
-    }
+      tituloH1.style.color = "#ffffff"; // Restaurar color
+    }, tiempoPresionado);
   });
+
+  const cancelarPresion = () => {
+    clearTimeout(pressTimer);
+    tituloH1.style.color = "#ffffff"; // Restaurar color
+  };
+
+  tituloH1.addEventListener("pointerup", cancelarPresion);
+  tituloH1.addEventListener("pointerleave", cancelarPresion);
+
+  // ==========================================
 
   const niveles = [
     {
@@ -727,12 +840,21 @@ window.addEventListener("load", () => {
       }
     }
 
-    // AQUÍ ESTÁ LA LÍNEA QUE FALTABA PARA QUE APAREZCA MINI HUPI
     if (state.clicks >= 29) {
       if (sideImage.style.display === "none" || sideImage.style.display === "")
         sideImage.style.display = "block";
     } else {
       sideImage.style.display = "none";
+    }
+
+    if (hammerActive) {
+      btnToggleInventory.textContent = "🔒";
+      btnToggleInventory.style.opacity = "0.5";
+      btnToggleInventory.style.cursor = "not-allowed";
+    } else {
+      btnToggleInventory.textContent = "🎒";
+      btnToggleInventory.style.opacity = "1";
+      btnToggleInventory.style.cursor = "pointer";
     }
   }
 
@@ -746,6 +868,44 @@ window.addEventListener("load", () => {
     div.style.top = y + "px";
     document.body.appendChild(div);
     setTimeout(() => div.remove(), 800);
+  }
+
+  function checkPrestige() {
+    if (
+      hammerActive &&
+      state.clicks >= nextPrestigeThreshold &&
+      !isAskingPrestige
+    ) {
+      isAskingPrestige = true;
+
+      setTimeout(() => {
+        if (
+          confirm(
+            `¡Has alcanzado los ${nextPrestigeThreshold} clics!\n\n¿Quieres volver al Nivel 1 perdiendo tus objetos pero CONSERVANDO tus Pat-pats acumulados?`,
+          )
+        ) {
+          unlockedLevel = 0;
+          targetClicks = state.clicks + 250;
+          levelStartClicks = state.clicks;
+          nextPrestigeThreshold += 8000;
+
+          inventoryItems = [];
+          hammerActive = false;
+          clickPower = 1;
+          hammerImage.style.display = "none";
+          clearTimeout(hammerFallTimer);
+          hammerCharge = 0;
+
+          renderInventory();
+          playThickMetalSound();
+          triggerGlitch();
+          actualizarUI();
+          actualizarMisiones();
+          btnImage.src = niveles[0].normal;
+        }
+        isAskingPrestige = false;
+      }, 100);
+    }
   }
 
   function dropHammer() {
@@ -782,6 +942,8 @@ window.addEventListener("load", () => {
       actualizarMisiones();
 
       btnImage.src = niveles[Math.min(unlockedLevel, 11)].normal;
+
+      checkPrestige();
 
       setTimeout(() => {
         isSwinging = false;
@@ -962,6 +1124,8 @@ window.addEventListener("load", () => {
 
     actualizarUI();
     actualizarMisiones();
+
+    checkPrestige();
   });
 
   clickBtn.addEventListener("pointerup", () => {
