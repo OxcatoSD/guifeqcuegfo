@@ -25,7 +25,6 @@ body {
     overscroll-behavior: none;
 }
 
-/* === FONDO === */
 #fondo {
     position: fixed;
     top: 0;
@@ -56,7 +55,6 @@ body {
     }
 }
 
-/* === PANTALLA DE INICIO === */
 #pantalla-inicio {
     position: fixed;
     top: 0;
@@ -119,7 +117,6 @@ body {
     transform: scale(0.9);
 }
 
-/* === JUEGO === */
 h1 {
     position: absolute;
     top: 90px;
@@ -307,7 +304,6 @@ h1 {
     }
 }
 
-/* === BOTONES DE INTERFAZ === */
 #btnToggleLeaderboard,
 #btnToggleInventory {
     position: fixed;
@@ -323,12 +319,10 @@ h1 {
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
 }
 
-/* En PC: Ocultamos el botón de la tabla */
 #btnToggleLeaderboard {
     display: none;
 }
 
-/* En PC: Mostramos la mochila debajo de la tabla */
 #btnToggleInventory {
     display: block;
     top: 150px;
@@ -382,16 +376,55 @@ h1 {
 
 .inv-grid {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 5px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
 }
 
 .inv-slot {
-    width: clamp(25px, 6vw, 35px);
-    height: clamp(25px, 6vw, 35px);
-    border: 1px solid #555;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    width: 45px;
+    height: 45px;
+    border: 2px dashed #555;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+.inv-slot.has-item {
+    border: 2px solid #ffcc00;
+    background: rgba(255, 204, 0, 0.2);
+    cursor: pointer;
+    animation: pulseItem 1s infinite alternate;
+    padding: 2px;
+}
+
+.inv-slot.has-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.inv-slot.has-item.equipped {
+    animation: none;
+    border-color: #888;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.inv-slot.has-item.equipped img {
+    filter: grayscale(100%) brightness(0.3);
+}
+
+@keyframes pulseItem {
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.1);
+        box-shadow: 0 0 10px #ffcc00;
+    }
 }
 
 .inventory.show {
@@ -451,19 +484,28 @@ h1 {
     transition: width 0.3s ease;
 }
 
-/* =========================================
-   AJUSTES EXCLUSIVOS PARA CELULARES
-   ========================================= */
-@media (max-width: 600px) {
+/* === ESTILOS DEL MARTILLO INTERACTIVO === */
+#hammerImage {
+    position: absolute;
+    top: -60px;
+    left: 70%;
+    /* A la derecha del botón */
+    width: clamp(60px, 20vw, 100px);
+    z-index: 15;
+    /* El pivote está en la base del mango (abajo a la derecha) */
+    transform-origin: bottom right;
+    pointer-events: none;
+    /* Rotación inicial para que parezca en reposo */
+    transform: translate(0px, 0px) rotate(15deg);
+}
 
-    /* El trofeo a la derecha */
+@media (max-width: 600px) {
     #btnToggleLeaderboard {
         display: block;
         top: 15px;
         right: 15px;
     }
 
-    /* La mochila al lado del trofeo (arriba a la derecha) */
     #btnToggleInventory {
         display: block;
         top: 15px;
@@ -471,14 +513,12 @@ h1 {
         left: auto;
     }
 
-    /* Ocultamos los paneles por defecto */
     .leaderboard,
     .inventory {
         display: none;
         animation: slideDown 0.2s ease-out;
     }
 
-    /* Cuando se abren, se muestran */
     .leaderboard.show,
     .inventory.show {
         display: flex;
@@ -496,18 +536,15 @@ h1 {
         }
     }
 
-    /* Posición de los paneles al abrirse en móvil */
     .leaderboard {
         top: 60px;
         right: 15px;
     }
 
-    /* El inventario se abre abajo de la mochila */
     .inventory {
         top: 60px;
         right: 15px;
-        width: 90%;
-        max-width: 350px;
+        width: auto;
         left: auto;
     }
 
@@ -549,9 +586,6 @@ h1 {
     }
 }
 
-/* =========================================
-   EFECTO GLITCH
-   ========================================= */
 #glitch-overlay {
     position: fixed;
     top: 0;

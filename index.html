@@ -15,7 +15,7 @@
     <div id="glitch-overlay"></div>
 
     <div id="pantalla-inicio">
-        <h2>🔮 Lux World</h2>
+        <h2>Lux World</h2>
         <p>¿Cómo te llamas, cuidador?</p>
         <input type="text" id="input-nombre" placeholder="Tu nombre..." maxlength="12" autocomplete="off">
         <button id="btn-empezar">Comenzar</button>
@@ -26,29 +26,17 @@
         <div class="score" id="score">0</div>
     </div>
 
-    <!-- BOTONES MÓVILES -->
     <button id="btnToggleLeaderboard">🏆</button>
     <button id="btnToggleInventory">🎒</button>
 
-    <!-- TABLA DE RÉCORDS -->
     <div class="leaderboard" id="leaderboardPanel">
         <h3>🏆 Récords</h3>
         <ol id="leaderboard-list"></ol>
     </div>
 
-    <!-- INVENTARIO (MOCHILA) -->
     <div class="inventory" id="inventoryPanel">
         <h3>🎒 Mochila</h3>
-        <div class="inv-grid">
-            <div class="inv-slot"></div>
-            <div class="inv-slot"></div>
-            <div class="inv-slot"></div>
-            <div class="inv-slot"></div>
-            <div class="inv-slot"></div>
-            <div class="inv-slot"></div>
-            <div class="inv-slot"></div>
-            <div class="inv-slot"></div>
-        </div>
+        <div class="inv-grid" id="inv-grid"></div>
     </div>
 
     <h1>Acaricia a Hupibot</h1>
@@ -58,6 +46,8 @@
             <img src="img/hupiframes/hupi frames 1.png" id="btnImage" alt="Botón">
         </button>
 
+        <img src="img/martillo.png" id="hammerImage" style="display: none;">
+
         <img src="img/minihupibot/idle.png" id="sideImage" class="side-animation" style="display: none;"
             alt="Mini Hupibot">
     </div>
@@ -66,9 +56,14 @@
         <div id="mission-list"></div>
     </div>
 
+    <!-- SONIDOS EXISTENTES -->
     <audio id="dogToySound" src="sound/freesound_community-squeaky-toy-1-6059.mp3" preload="auto"></audio>
     <audio id="crakckedSound" src="sound/audiopapkin-squeak-metal-ps-016-389413.mp3" preload="auto"></audio>
     <audio id="rockSound" src="sound/rock.mp3" preload="auto"></audio>
+
+    <!-- NUEVOS SONIDOS (CAMBIA LOS NOMBRES DE LOS ARCHIVOS AQUÍ) -->
+    <audio id="hammerHitSound" src="sound/golpe normal.mp3" preload="auto"></audio>
+    <audio id="levelUpSound" src="sound/golpe fatal _ cambio de nivel_.mp3" preload="auto"></audio>
 
     <script src="script/script.js"></script>
 

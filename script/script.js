@@ -7,15 +7,14 @@ window.addEventListener("load", () => {
     const pantallaInicio = document.getElementById("pantalla-inicio");
     const tituloInicio = pantallaInicio.querySelector("h2");
     const textoInicio = pantallaInicio.querySelector("p");
-    tituloInicio.textContent = "¿מן את?";
+    tituloInicio.textContent = "¿QUIÉN ERES?";
     tituloInicio.style.color = "#ff0000";
     tituloInicio.style.textShadow = "0 0 10px red, 0 0 20px darkred";
-    pantallaInicio.style.backgroundImage =
-      "url('img/background/IMG-20261019-WA0007.jpg')";
+    pantallaInicio.style.backgroundImage = "url('img/background/IMG-20261019-WA0007.jpg')";
     pantallaInicio.style.backgroundSize = "cover";
     pantallaInicio.style.backgroundPosition = "center";
     pantallaInicio.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-    textoInicio.textContent = "nombra tu alma...";
+    textoInicio.textContent = "Escribe tu nombre si te atreves...";
     textoInicio.style.color = "#ff3333";
   }
 
@@ -43,6 +42,12 @@ window.addEventListener("load", () => {
   const leaderboardPanel = document.getElementById("leaderboardPanel");
   const btnToggleInventory = document.getElementById("btnToggleInventory");
   const inventoryPanel = document.getElementById("inventoryPanel");
+  const invGrid = document.getElementById("inv-grid");
+
+  const hammerImage = document.getElementById("hammerImage");
+
+  const hammerHitSound = document.getElementById("hammerHitSound");
+  const levelUpSound = document.getElementById("levelUpSound");
 
   const elementosUI = [
     document.querySelector("h1"),
@@ -57,11 +62,12 @@ window.addEventListener("load", () => {
   const inputNombre = document.getElementById("input-nombre");
   const btnEmpezar = document.getElementById("btn-empezar");
 
-  squeakSound.volume = 0.4;
-  metalSound.volume = 1.0;
+  squeakSound.volume = 0.2;
+  metalSound.volume = 0.5;
   rockSound.volume = 1.0;
+  hammerHitSound.volume = 1.0;
+  levelUpSound.volume = 1.0;
 
-  // === FUNCIONES DE SONIDO Y GLITCH ===
   function playThickMetalSound() {
     metalSound.currentTime = 0;
     metalSound.playbackRate = 0.7;
@@ -86,7 +92,6 @@ window.addEventListener("load", () => {
     }, 800);
   }
 
-  // === DETECTOR DE AUTOCLICKER ===
   let historialTiempos = [];
   let bloqueadoPorAutoclicker = false;
   function esAutoclicker() {
@@ -102,7 +107,6 @@ window.addEventListener("load", () => {
     return false;
   }
 
-  // === ESTADO DEL JUEGO ===
   const state = { clicks: 0 };
   let playerName = "Anónimo";
   let juegoIniciado = false;
@@ -110,9 +114,19 @@ window.addEventListener("load", () => {
   let ultimoClicTiempo = Date.now();
   let clicsRapidos = 0;
   let temporizadorEstadoMini;
-  let rockTotal = 0,
-    studyTotal = 0,
-    clicsRapidosTotales = 0;
+  let rockTotal = 0, studyTotal = 0, clicsRapidosTotales = 0;
+
+  let unlockedLevel = 0;
+  let isLocked = false;
+  let inventoryItems = [];
+  let targetClicks = 250;
+  let levelStartClicks = 0; 
+  let clickPower = 1;
+
+  let hammerActive = false;
+  let hammerCharge = 0;
+  let hammerFallTimer;
+  let isSwinging = false;
 
   const imagenesMini = {
     idle: "img/minihupibot/idle.png",
@@ -125,7 +139,6 @@ window.addEventListener("load", () => {
     img.src = ruta;
   });
 
-  // === EVENTOS DE LOS BOTONES MÓVILES ===
   btnToggleLeaderboard.addEventListener("click", () => {
     leaderboardPanel.classList.toggle("show");
     if (window.innerWidth <= 600) inventoryPanel.classList.remove("show");
@@ -136,171 +149,160 @@ window.addEventListener("load", () => {
     if (window.innerWidth <= 600) leaderboardPanel.classList.remove("show");
   });
 
-  // === MISIONES ===
-  const nivelesClicks = [
-    0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100,
-  ];
-  let misiones = [
-    {
-      id: "m_fast10",
-      texto: "Da 10 clics rápidos",
-      meta: 10,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 0,
-      requiereHupi: false,
-    },
-    {
-      id: "m_rock1",
-      texto: "Haz rockear a Hupi",
-      meta: 1,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 0,
-      requiereHupi: true,
-    },
-    {
-      id: "m_study1",
-      texto: "Haz estudiar a Hupi",
-      meta: 1,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 2,
-      requiereHupi: true,
-    },
-    {
-      id: "m_fast50",
-      texto: "Da 50 clics rápidos",
-      meta: 50,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 2,
-      requiereHupi: false,
-    },
-    {
-      id: "m_rock3",
-      texto: "Haz rockear a Hupi 3 veces",
-      meta: 3,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 3,
-      requiereHupi: true,
-    },
-    {
-      id: "m_study3",
-      texto: "Haz estudiar a Hupi 3 veces",
-      meta: 3,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 5,
-      requiereHupi: true,
-    },
-    {
-      id: "m_fast150",
-      texto: "Da 150 clics rápidos",
-      meta: 150,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 5,
-      requiereHupi: false,
-    },
-    {
-      id: "m_rock6",
-      texto: "Haz rockear a Hupi 6 veces",
-      meta: 6,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 6,
-      requiereHupi: true,
-    },
-    {
-      id: "m_study5",
-      texto: "Haz estudiar a Hupi 5 veces",
-      meta: 5,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 8,
-      requiereHupi: true,
-    },
-    {
-      id: "m_fast300",
-      texto: "Da 300 clics rápidos",
-      meta: 300,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 8,
-      requiereHupi: false,
-    },
-    {
-      id: "m_rock10",
-      texto: "Haz rockear a Hupi 10 veces",
-      meta: 10,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 9,
-      requiereHupi: true,
-    },
-    {
-      id: "m_max",
-      texto: "Alcanza el Nivel Máximo",
-      meta: 1100,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 11,
-      requiereHupi: false,
-    },
-  ];
+  function renderInventory() {
+    invGrid.innerHTML = "";
+    for (let i = 0; i < 3; i++) {
+      const slot = document.createElement("div");
+      slot.className = "inv-slot";
 
-  function obtenerIndiceNivel(clicks) {
-    let index = 0;
-    for (let i = 0; i < nivelesClicks.length; i++) {
-      if (clicks >= nivelesClicks[i]) index = i;
+      if (inventoryItems[i]) {
+        slot.classList.add("has-item");
+        if (inventoryItems[i].equipped) {
+          slot.classList.add("equipped");
+        }
+        slot.innerHTML = `<img src="${inventoryItems[i].img}" alt="${inventoryItems[i].name}">`;
+        slot.title = inventoryItems[i].name;
+        slot.addEventListener("click", () => useItem(i));
+      }
+      invGrid.appendChild(slot);
     }
-    return index;
   }
+
+  function useItem(index) {
+    let item = inventoryItems[index];
+    if (!item) return;
+
+    if (item.type === "hammer") {
+      if (isLocked) {
+        isLocked = false;
+        unlockedLevel = 5; 
+        
+        let increment = 100;
+        targetClicks = state.clicks + increment;
+        levelStartClicks = state.clicks;
+
+        inventoryItems.forEach((invItem) => (invItem.equipped = false));
+        item.equipped = true;
+        hammerActive = true;
+        hammerImage.style.display = "block";
+        hammerImage.style.transition = "none";
+        hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
+        clickPower = 1;
+
+        levelUpSound.currentTime = 0;
+        levelUpSound.play().catch((e) => {});
+        triggerGlitch();
+      } else {
+        if (item.equipped) {
+          item.equipped = false;
+          hammerActive = false;
+          hammerImage.style.display = "none";
+          clearTimeout(hammerFallTimer);
+          hammerCharge = 0;
+          hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
+          clickPower = 1;
+        } else {
+          inventoryItems.forEach((invItem) => (invItem.equipped = false));
+          item.equipped = true;
+          hammerActive = true;
+          hammerImage.style.display = "block";
+          hammerImage.style.transition = "none";
+          hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
+          clickPower = 1;
+        }
+      }
+      renderInventory();
+      actualizarUI();
+      actualizarMisiones();
+      return;
+    }
+
+    if (item.type === "glove" || item.type === "flyswatter") {
+      if (item.equipped) {
+        item.equipped = false;
+        clickPower = 1;
+      } else {
+        inventoryItems.forEach((invItem) => (invItem.equipped = false));
+        item.equipped = true;
+        clickPower = item.type === "glove" ? 2 : 5;
+
+        hammerActive = false;
+        hammerImage.style.display = "none";
+        clearTimeout(hammerFallTimer);
+        hammerCharge = 0;
+        hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
+      }
+      playThickMetalSound();
+    }
+
+    renderInventory();
+    actualizarUI();
+    actualizarMisiones();
+  }
+
+  let misiones = [
+    { id: "m_fast10", texto: "Da 10 clics rápidos", meta: 10, actual: 0, completada: false, nivelRequerido: 0, requiereHupi: false },
+    { id: "m_rock1", texto: "Haz rockear a Hupi", meta: 1, actual: 0, completada: false, nivelRequerido: 0, requiereHupi: true },
+    { id: "m_study1", texto: "Haz estudiar a Hupi", meta: 1, actual: 0, completada: false, nivelRequerido: 2, requiereHupi: true },
+    { id: "m_fast50", texto: "Da 50 clics rápidos", meta: 50, actual: 0, completada: false, nivelRequerido: 2, requiereHupi: false },
+    { id: "m_rock3", texto: "Haz rockear a Hupi 3 veces", meta: 3, actual: 0, completada: false, nivelRequerido: 3, requiereHupi: true },
+    { id: "m_study3", texto: "Haz estudiar a Hupi 3 veces", meta: 3, actual: 0, completada: false, nivelRequerido: 5, requiereHupi: true },
+    { id: "m_fast150", texto: "Da 150 clics rápidos", meta: 150, actual: 0, completada: false, nivelRequerido: 5, requiereHupi: false },
+    { id: "m_rock6", texto: "Haz rockear a Hupi 6 veces", meta: 6, actual: 0, completada: false, nivelRequerido: 6, requiereHupi: true },
+    { id: "m_study5", texto: "Haz estudiar a Hupi 5 veces", meta: 5, actual: 0, completada: false, nivelRequerido: 8, requiereHupi: true },
+    { id: "m_fast300", texto: "Da 300 clics rápidos", meta: 300, actual: 0, completada: false, nivelRequerido: 8, requiereHupi: false },
+    { id: "m_rock10", texto: "Haz rockear a Hupi 10 veces", meta: 10, actual: 0, completada: false, nivelRequerido: 9, requiereHupi: true },
+    { id: "m_max", texto: "Alcanza el Nivel Máximo", meta: 2000, actual: 0, completada: false, nivelRequerido: 11, requiereHupi: false },
+  ];
 
   function renderMisiones() {
     missionList.innerHTML = "";
-    let nivelActualIndex = obtenerIndiceNivel(state.clicks);
+    let nivelActualIndex = unlockedLevel;
     let sigNivelIndex = nivelActualIndex + 1;
     let misionPrincipalHtml = "";
 
-    if (sigNivelIndex < nivelesClicks.length) {
-      let metaSiguiente = nivelesClicks[sigNivelIndex];
-      let faltantes = metaSiguiente - state.clicks;
-      let porcentaje =
-        ((state.clicks - nivelesClicks[nivelActualIndex]) /
-          (metaSiguiente - nivelesClicks[nivelActualIndex])) *
-        100;
-      let nombreMision =
-        state.clicks >= 400
-          ? "💖 Que sienta tu amor"
-          : `⭐ Nivel ${sigNivelIndex + 1}`;
+    if (isLocked) {
+      misionPrincipalHtml = `
+        <div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;">
+            <div class="mission-header" style="color: #ff0000;">
+                <span>Nivel Bloqueado</span>
+            </div>
+            <div style="font-size: 0.55rem; margin-top: 5px; color: #ffcc00;">Usa el objeto en la Mochila 🎒 para continuar.</div>
+        </div>`;
+    } else if (sigNivelIndex < 12) {
+      let faltantes = targetClicks - state.clicks;
+      let progresoActual = state.clicks - levelStartClicks;
+      let totalNecesario = targetClicks - levelStartClicks;
+      
+      if (progresoActual < 0) progresoActual = 0;
+      if (totalNecesario <= 0) totalNecesario = 1;
+
+      let porcentaje = (progresoActual / totalNecesario) * 100;
+      if (faltantes < 0) faltantes = 0;
+      if (porcentaje > 100) porcentaje = 100;
+      if (porcentaje < 0) porcentaje = 0;
+
+      let nombreMision = state.clicks >= 1000 ? "Que sienta tu amor" : `Nivel ${sigNivelIndex + 1}`;
+
       misionPrincipalHtml = `
         <div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;">
             <div class="mission-header"><span>${nombreMision}</span><span>Faltan ${faltantes}</span></div>
             <div class="mission-bar-bg"><div class="mission-bar-fill" style="width: ${porcentaje}%; background: #ffcc00;"></div></div>
         </div>`;
     } else {
-      misionPrincipalHtml = `<div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;"><div class="mission-header" style="color: #ffcc00;"><span>💖 Nivel Máximo Alcanzado</span></div></div>`;
+      misionPrincipalHtml = `<div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;"><div class="mission-header" style="color: #ffcc00;"><span>Nivel Máximo Alcanzado</span></div></div>`;
     }
 
-    let secundariasActivas = misiones
-      .filter((m) => {
+    let secundariasActivas = misiones.filter((m) => {
         let hupiVisible = !m.requiereHupi || state.clicks >= 29;
-        return (
-          !m.completada && m.nivelRequerido <= nivelActualIndex && hupiVisible
-        );
-      })
-      .slice(0, 2);
+        return (!m.completada && m.nivelRequerido <= nivelActualIndex && hupiVisible);
+      }).slice(0, 2);
 
-    let htmlSecundarias = secundariasActivas
-      .map((m) => {
+    let htmlSecundarias = secundariasActivas.map((m) => {
         let faltantes = m.meta - m.actual;
         let porcentaje = Math.min((m.actual / m.meta) * 100, 100);
         return `<div class="mission-item"><div class="mission-header"><span>${m.texto}</span><span>${faltantes === 1 ? "Falta 1" : "Faltan " + faltantes}</span></div><div class="mission-bar-bg"><div class="mission-bar-fill" style="width: ${porcentaje}%"></div></div></div>`;
-      })
-      .join("");
+      }).join("");
 
     missionList.innerHTML = misionPrincipalHtml + htmlSecundarias;
   }
@@ -316,17 +318,12 @@ window.addEventListener("load", () => {
     renderMisiones();
   }
 
-  // === LÓGICA DEL MINI HUPIBOT ===
   function cambiarEstadoMiniHupi(estado, duracion = 0) {
     if (sideImage.src.includes(estado)) return;
     sideImage.src = imagenesMini[estado];
     sideImage.classList.toggle("estado-relaxing", estado === "relaxing");
     clearTimeout(temporizadorEstadoMini);
-    if (duracion > 0)
-      temporizadorEstadoMini = setTimeout(
-        () => cambiarEstadoMiniHupi("idle"),
-        duracion,
-      );
+    if (duracion > 0) temporizadorEstadoMini = setTimeout(() => cambiarEstadoMiniHupi("idle"), duracion);
   }
 
   function resetearInactividad() {
@@ -347,7 +344,6 @@ window.addEventListener("load", () => {
     resetearInactividad();
   });
 
-  // === LÓGICA DE LA TABLA ===
   function cargarTablaLocal() {
     if (!leaderboardList) return;
     try {
@@ -377,15 +373,9 @@ window.addEventListener("load", () => {
         let datos = JSON.parse(sesionGuardada);
         if (datos && datos.puntos > 5) {
           let records = JSON.parse(localStorage.getItem("lux_records")) || [];
-          records.push({
-            nombre: String(datos.nombre),
-            puntos: Number(datos.puntos),
-          });
+          records.push({ nombre: String(datos.nombre), puntos: Number(datos.puntos) });
           records.sort((a, b) => Number(b.puntos) - Number(a.puntos));
-          localStorage.setItem(
-            "lux_records",
-            JSON.stringify(records.slice(0, 5)),
-          );
+          localStorage.setItem("lux_records", JSON.stringify(records.slice(0, 5)));
         }
         sessionStorage.removeItem("lux_sesion_actual");
       }
@@ -395,30 +385,46 @@ window.addEventListener("load", () => {
   procesarSesionAnterior();
 
   btnEmpezar.addEventListener("click", () => {
-    playerName =
-      inputNombre.value.trim() === ""
-        ? "Anónimo"
-        : inputNombre.value.trim().substring(0, 12);
+    playerName = inputNombre.value.trim() === "" ? "Anónimo" : inputNombre.value.trim().substring(0, 12);
     pantallaInicio.style.display = "none";
     juegoIniciado = true;
+
+    state.clicks = 0;
+    unlockedLevel = 0;
+    isLocked = false;
+    inventoryItems = [];
+    targetClicks = 250;
+    levelStartClicks = 0;
+    clickPower = 1;
+    hammerActive = false;
+    isSwinging = false;
+
+    renderInventory();
     actualizarUI();
     resetearInactividad();
     renderMisiones();
   });
 
-  // === MENÚ DE TRAMPAS ===
   function abrirMenuTrampas() {
     if (!juegoIniciado) return;
-    let codigo = prompt(
-      "🔐 MODO TRAMPAS\n\nEscribe:\n- Un número (ej. 500)\n- 'max' (1100 clics)\n- 'reset' (Volver a 0)",
-    );
+    let codigo = prompt("MODO TRAMPAS\n\nEscribe:\n- Un número (ej. 500)\n- 'max' (2000 clics)\n- 'reset' (Volver a 0)");
     if (codigo === null) return;
     codigo = codigo.toLowerCase().trim();
-    let limiteAnterior = nivelActual.limite;
 
-    if (codigo === "max") state.clicks = 1100;
-    else if (codigo === "reset") {
+    if (codigo === "max") {
+      state.clicks = 2000;
+      unlockedLevel = 11;
+      targetClicks = 2100;
+      levelStartClicks = 2000;
+      isLocked = false;
+    } else if (codigo === "reset") {
       state.clicks = 0;
+      unlockedLevel = 0;
+      isLocked = false;
+      inventoryItems = [];
+      targetClicks = 250;
+      levelStartClicks = 0;
+      clickPower = 1;
       rockTotal = 0;
       studyTotal = 0;
       clicsRapidosTotales = 0;
@@ -426,37 +432,35 @@ window.addEventListener("load", () => {
         m.completada = false;
         m.actual = 0;
       });
-    } else if (!isNaN(codigo) && codigo !== "") state.clicks = parseInt(codigo);
-    else {
+      renderInventory();
+    } else if (!isNaN(codigo) && codigo !== "") {
+      state.clicks = parseInt(codigo);
+      if (state.clicks < 1250) {
+        unlockedLevel = Math.floor(state.clicks / 250);
+        levelStartClicks = unlockedLevel * 250;
+        targetClicks = (unlockedLevel + 1) * 250;
+      } else {
+        unlockedLevel = 5 + Math.floor((state.clicks - 1250) / 100);
+        if (unlockedLevel > 11) unlockedLevel = 11;
+        levelStartClicks = 1250 + (unlockedLevel - 5) * 100;
+        targetClicks = 1250 + (unlockedLevel - 4) * 100;
+        if (targetClicks <= state.clicks) targetClicks = state.clicks + 100;
+      }
+      isLocked = false;
+    } else {
       alert("Código no válido.");
       return;
     }
 
-    nivelActual = obtenerNivel(state.clicks);
-    if (nivelActual.limite > limiteAnterior) {
-      playThickMetalSound();
-      triggerGlitch();
-    }
-    try {
-      sessionStorage.setItem(
-        "lux_sesion_actual",
-        JSON.stringify({
-          nombre: playerName + " (Cheat)",
-          puntos: state.clicks,
-        }),
-      );
-    } catch (e) {}
+    playThickMetalSound();
+    triggerGlitch();
     actualizarUI();
     actualizarMisiones();
   }
 
   let bufferTeclas = "";
   window.addEventListener("keydown", (e) => {
-    // Atajo para abrir la mochila en PC (Teclas 'B' o 'I')
-    if (e.key.toLowerCase() === "b" || e.key.toLowerCase() === "i") {
-      inventoryPanel.classList.toggle("show");
-    }
-
+    if (e.key.toLowerCase() === "b" || e.key.toLowerCase() === "i") inventoryPanel.classList.toggle("show");
     bufferTeclas += e.key.toLowerCase();
     if (bufferTeclas.includes("cheat")) {
       bufferTeclas = "";
@@ -465,8 +469,7 @@ window.addEventListener("load", () => {
     if (bufferTeclas.length > 10) bufferTeclas = bufferTeclas.slice(1);
   });
 
-  let toquesSeguidos = 0,
-    temporizadorToques;
+  let toquesSeguidos = 0, temporizadorToques;
   scoreLabel.addEventListener("click", () => {
     toquesSeguidos++;
     clearTimeout(temporizadorToques);
@@ -480,122 +483,76 @@ window.addEventListener("load", () => {
     }
   });
 
-  // === IMÁGENES Y FONDOS ===
   const niveles = [
-    {
-      limite: 0,
-      normal: "img/hupiframes/hupi frames 1.png",
-      presionada: "img/hupiframes/hupi frames 2.png",
-    },
-    {
-      limite: 100,
-      normal: "img/hupiframes/hupi frames 3.png",
-      presionada: "img/hupiframes/hupi frames 4.png",
-    },
-    {
-      limite: 200,
-      normal: "img/hupiframes/hupi frames 5.png",
-      presionada: "img/hupiframes/hupi frames 6.png",
-    },
-    {
-      limite: 300,
-      normal: "img/hupiframes/hupi frames 7.png",
-      presionada: "img/hupiframes/hupi frames 8.png",
-    },
-    {
-      limite: 400,
-      normal: "img/hupiframes/hupi frames 9.png",
-      presionada: "img/hupiframes/hupi frames 10.png",
-    },
-    {
-      limite: 500,
-      normal: "img/hupiframes/hupi frames 11.png",
-      presionada: "img/hupiframes/hupi frames 12.png",
-    },
-    {
-      limite: 600,
-      normal: "img/hupiframes/hupi frames 13.png",
-      presionada: "img/hupiframes/hupi frames 14.png",
-    },
-    {
-      limite: 700,
-      normal: "img/hupiframes/hupi frames 15.png",
-      presionada: "img/hupiframes/hupi frames 16.png",
-    },
-    {
-      limite: 800,
-      normal: "img/hupiframes/hupi frames 17.png",
-      presionada: "img/hupiframes/hupi frames 18.png",
-    },
-    {
-      limite: 900,
-      normal: "img/hupiframes/hupi frames 19.png",
-      presionada: "img/hupiframes/hupi frames 20.png",
-    },
-    {
-      limite: 1000,
-      normal: "img/hupiframes/hupi frames 21.png",
-      presionada: "img/hupiframes/hupi frames 22.png",
-    },
-    {
-      limite: 1100,
-      normal: "img/hupiframes/hupi frames 23.png",
-      presionada: "img/hupiframes/hupi frames 24.png",
-    },
+    { limite: 0, normal: "img/hupiframes/hupi frames 1.png", presionada: "img/hupiframes/hupi frames 2.png" },
+    { limite: 250, normal: "img/hupiframes/hupi frames 3.png", presionada: "img/hupiframes/hupi frames 4.png" },
+    { limite: 500, normal: "img/hupiframes/hupi frames 5.png", presionada: "img/hupiframes/hupi frames 6.png" },
+    { limite: 750, normal: "img/hupiframes/hupi frames 7.png", presionada: "img/hupiframes/hupi frames 8.png" },
+    { limite: 1000, normal: "img/hupiframes/hupi frames 9.png", presionada: "img/hupiframes/hupi frames 10.png" },
+    { limite: 1250, normal: "img/hupiframes/hupi frames 11.png", presionada: "img/hupiframes/hupi frames 12.png" },
+    { limite: 1350, normal: "img/hupiframes/hupi frames 13.png", presionada: "img/hupiframes/hupi frames 14.png" },
+    { limite: 1450, normal: "img/hupiframes/hupi frames 15.png", presionada: "img/hupiframes/hupi frames 16.png" },
+    { limite: 1550, normal: "img/hupiframes/hupi frames 17.png", presionada: "img/hupiframes/hupi frames 18.png" },
+    { limite: 1650, normal: "img/hupiframes/hupi frames 19.png", presionada: "img/hupiframes/hupi frames 20.png" },
+    { limite: 1750, normal: "img/hupiframes/hupi frames 21.png", presionada: "img/hupiframes/hupi frames 22.png" },
+    { limite: 1850, normal: "img/hupiframes/hupi frames 23.png", presionada: "img/hupiframes/hupi frames 24.png" },
   ];
 
   const fondos = [
     { limite: 0, ruta: "img/background/IMG-20261019-WA0003.jpg" },
-    { limite: 100, ruta: "img/background/IMG-20261019-WA0004.jpg" },
-    { limite: 200, ruta: "img/background/IMG-20261019-WA0005.jpg" },
-    { limite: 300, ruta: "img/background/IMG-20261019-WA0006.jpg" },
-    { limite: 400, ruta: "img/background/IMG-20261019-WA0007.jpg" },
+    { limite: 250, ruta: "img/background/IMG-20261019-WA0004.jpg" },
+    { limite: 500, ruta: "img/background/IMG-20261019-WA0005.jpg" },
+    { limite: 750, ruta: "img/background/IMG-20261019-WA0006.jpg" },
+    { limite: 1000, ruta: "img/background/IMG-20261019-WA0007.jpg" },
   ];
-
-  let nivelActual = niveles[0];
-  function obtenerNivel(clicks) {
-    let nivel = niveles[0];
-    for (let i = 0; i < niveles.length; i++) {
-      if (clicks >= niveles[i].limite) nivel = niveles[i];
-    }
-    return nivel;
-  }
 
   function actualizarUI() {
     scoreEl.textContent = Math.floor(state.clicks);
-    nivelActual = obtenerNivel(state.clicks);
+
+    let nivelVisualIndex = unlockedLevel;
+    if (nivelVisualIndex > 11) nivelVisualIndex = 11;
+    let nivelActual = niveles[nivelVisualIndex];
 
     if (easterEggJuegoActivo) {
       tituloH1.textContent = "no quiero amar";
       tituloH1.style.color = "#ff0000";
       tituloH1.style.textShadow = "0 0 10px red, 0 0 20px darkred";
-      fondoDiv.style.filter =
-        "sepia(1) hue-rotate(-50deg) saturate(2) brightness(0.5)";
+      fondoDiv.style.filter = "sepia(1) hue-rotate(-50deg) saturate(2) brightness(0.5)";
     } else {
-      clickBtn.className = "click-btn";
-      if (state.clicks < 500) {
-        if (state.clicks >= 100) clickBtn.classList.add("stage-300");
-        if (state.clicks >= 200) clickBtn.classList.add("stage-700");
-        if (state.clicks >= 300) clickBtn.classList.add("stage-1100");
-        if (state.clicks >= 400) clickBtn.classList.add("stage-1500");
-
-        let fondoActual = fondos[0];
-        for (let i = 0; i < fondos.length; i++) {
-          if (state.clicks >= fondos[i].limite) fondoActual = fondos[i];
-        }
-        if (fondoDiv.style.backgroundImage !== `url("${fondoActual.ruta}")`)
-          fondoDiv.style.backgroundImage = `url('${fondoActual.ruta}')`;
-        fondoDiv.style.backgroundColor = "transparent";
+      if (state.clicks >= 1000) {
+        tituloH1.textContent = "Que sienta tu amor";
       } else {
+        tituloH1.textContent = "Acaricia a Hupibot";
+      }
+
+      clickBtn.className = "click-btn";
+
+      if (hammerActive) {
         clickBtn.classList.add("square-btn");
         fondoDiv.style.backgroundImage = "none";
         fondoDiv.style.backgroundColor = "#000000";
+      } else {
+        if (nivelVisualIndex >= 1) clickBtn.classList.add("stage-300");
+        if (nivelVisualIndex >= 2) clickBtn.classList.add("stage-700");
+        if (nivelVisualIndex >= 3) clickBtn.classList.add("stage-1100");
+        if (nivelVisualIndex >= 4) clickBtn.classList.add("stage-1500");
+
+        let fondoIndex = Math.min(nivelVisualIndex, fondos.length - 1);
+        let fondoActual = fondos[fondoIndex];
+        
+        if (fondoDiv.style.backgroundImage !== `url("${fondoActual.ruta}")`) {
+          fondoDiv.style.backgroundImage = `url('${fondoActual.ruta}')`;
+        }
+        fondoDiv.style.backgroundColor = "transparent";
       }
     }
 
+    if (!clickBtn.matches(":active")) {
+      btnImage.src = nivelActual.normal;
+    }
+
     if (state.clicks >= 29) {
-      if (sideImage.style.display === "none" || sideImage.style.display === "")
-        sideImage.style.display = "block";
+      if (sideImage.style.display === "none" || sideImage.style.display === "") sideImage.style.display = "block";
     } else {
       sideImage.style.display = "none";
     }
@@ -613,9 +570,82 @@ window.addEventListener("load", () => {
     setTimeout(() => div.remove(), 800);
   }
 
+  function dropHammer() {
+    if (isSwinging) return;
+    isSwinging = true;
+    clearTimeout(hammerFallTimer);
+
+    hammerImage.style.transition = "transform 0.15s cubic-bezier(0.6, -0.28, 0.735, 0.045)";
+    hammerImage.style.transform = `translate(-100px, 80px) rotate(-70deg)`;
+
+    setTimeout(() => {
+      let ganancia = hammerCharge * clickPower;
+      state.clicks += ganancia;
+
+      hammerHitSound.currentTime = 0;
+      hammerHitSound.play().catch((e) => {});
+
+      triggerGlitch();
+      mostrarFlotante(window.innerWidth / 2, window.innerHeight / 2, `+${ganancia}`, "#ffcc00");
+
+      hammerCharge = 0;
+
+      hammerImage.style.transition = "transform 0.3s ease-out";
+      hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
+
+      checkLevelUp();
+      actualizarUI();
+      actualizarMisiones();
+
+      setTimeout(() => {
+        isSwinging = false;
+      }, 300);
+    }, 150);
+  }
+
+  function checkLevelUp() {
+    let leveledUp = false;
+
+    while (unlockedLevel < 11 && state.clicks >= targetClicks && !isLocked) {
+      let nextLevel = unlockedLevel + 1;
+
+      if (nextLevel === 1) {
+        unlockedLevel = 1;
+        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
+        renderInventory();
+      } 
+      else if (nextLevel === 3) {
+        unlockedLevel = 3;
+        inventoryItems.push({ name: "Matamoscas", type: "flyswatter", img: "img/matamoscas.png", equipped: false });
+        renderInventory();
+      } 
+      else if (nextLevel === 5) {
+        isLocked = true;
+        inventoryItems.push({ name: "Martillo", type: "hammer", img: "img/martillo.png", equipped: false });
+        renderInventory();
+        break; 
+      } else {
+        unlockedLevel = nextLevel;
+      }
+
+      leveledUp = true;
+      let increment = unlockedLevel < 5 ? 250 : 100;
+      targetClicks = state.clicks + increment;
+      levelStartClicks = state.clicks;
+    }
+
+    if (leveledUp) {
+      levelUpSound.currentTime = 0;
+      levelUpSound.play().catch((e) => {});
+      triggerGlitch();
+    }
+  }
+
   clickBtn.addEventListener("pointerdown", (e) => {
     if (!juegoIniciado) return;
     e.preventDefault();
+
+    if (isSwinging) return;
 
     if (easterEggJuegoActivo) {
       clicsEasterEgg++;
@@ -623,8 +653,7 @@ window.addEventListener("load", () => {
         window.open("", "_self", "");
         window.close();
         setTimeout(() => {
-          document.body.innerHTML =
-            "<h1 style='color:white; font-family:sans-serif; text-align:center; margin-top:20%;'>El vacío te ha consumido.</h1>";
+          document.body.innerHTML = "<h1 style='color:white; font-family:sans-serif; text-align:center; margin-top:20%;'>El vacío te ha consumido.</h1>";
         }, 100);
         return;
       }
@@ -651,7 +680,27 @@ window.addEventListener("load", () => {
       return;
     }
 
-    mostrarFlotante(e.clientX, e.clientY);
+    if (hammerActive) {
+      hammerCharge++;
+
+      let pull = Math.min(hammerCharge, 50);
+      let angle = 15 + pull * 1.5;
+      let offsetX = pull * 0.5;
+      let offsetY = -pull * 0.5;
+
+      hammerImage.style.transition = "transform 0.1s ease-out";
+      hammerImage.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${angle}deg)`;
+
+      clearTimeout(hammerFallTimer);
+      if (hammerCharge >= 50) {
+        dropHammer();
+      } else {
+        hammerFallTimer = setTimeout(dropHammer, 2500);
+      }
+      return;
+    }
+
+    mostrarFlotante(e.clientX, e.clientY, "+" + clickPower, "#00ffff");
     resetearInactividad();
 
     let ahora = Date.now();
@@ -668,33 +717,36 @@ window.addEventListener("load", () => {
       cambiarEstadoMiniHupi("study", 4000);
       studyTotal++;
       clicsRapidos = 0;
-    } else if (
-      !sideImage.src.includes("study") &&
-      !sideImage.src.includes("rock")
-    ) {
+    } else if (!sideImage.src.includes("study") && !sideImage.src.includes("rock")) {
       cambiarEstadoMiniHupi("idle");
     }
 
-    let limiteAnterior = nivelActual.limite;
-    state.clicks += 1;
-    nivelActual = obtenerNivel(state.clicks);
-
-    if (nivelActual.limite > limiteAnterior) {
-      playThickMetalSound();
-      triggerGlitch();
+    // === LÓGICA DE CAPADO EN UMBRALES (Para no saltar el 1250) ===
+    let nextThreshold = targetClicks;
+    
+    // Si el clic sobrepasa el umbral y no estamos bloqueados, lo frenamos exactamente en el umbral
+    if (state.clicks + clickPower >= nextThreshold && !isLocked && unlockedLevel < 11) {
+        state.clicks = nextThreshold;
     } else {
+        state.clicks += clickPower;
+    }
+    
+    checkLevelUp();
+
+    let nivelVisualIndex = unlockedLevel;
+    if (nivelVisualIndex > 11) nivelVisualIndex = 11;
+    let nivelVisualActual = niveles[nivelVisualIndex];
+
+    if (state.clicks > 0) {
       squeakSound.currentTime = 0;
       squeakSound.play().catch((error) => {});
     }
 
     if (easterEggJuegoActivo) btnImage.src = imgEasterPresionada;
-    else btnImage.src = nivelActual.presionada;
+    else btnImage.src = nivelVisualActual.presionada;
 
     try {
-      sessionStorage.setItem(
-        "lux_sesion_actual",
-        JSON.stringify({ nombre: playerName, puntos: state.clicks }),
-      );
+      sessionStorage.setItem("lux_sesion_actual", JSON.stringify({ nombre: playerName, puntos: state.clicks }));
     } catch (e) {}
     actualizarUI();
     actualizarMisiones();
@@ -702,17 +754,24 @@ window.addEventListener("load", () => {
 
   clickBtn.addEventListener("pointerup", () => {
     if (!juegoIniciado) return;
+    let nivelVisualIndex = unlockedLevel;
+    if (nivelVisualIndex > 11) nivelVisualIndex = 11;
+    let nivelVisualActual = niveles[nivelVisualIndex];
+
     if (easterEggJuegoActivo) btnImage.src = imgEasterNormal;
-    else btnImage.src = nivelActual.normal;
+    else btnImage.src = nivelVisualActual.normal;
   });
 
   clickBtn.addEventListener("pointerleave", () => {
     if (!juegoIniciado) return;
+    let nivelVisualIndex = unlockedLevel;
+    if (nivelVisualIndex > 11) nivelVisualIndex = 11;
+    let nivelVisualActual = niveles[nivelVisualIndex];
+
     if (easterEggJuegoActivo) btnImage.src = imgEasterNormal;
-    else btnImage.src = nivelActual.normal;
+    else btnImage.src = nivelVisualActual.normal;
   });
 
   // === INICIAR ===
-  btnImage.src = niveles[0].normal;
   actualizarUI();
 });
