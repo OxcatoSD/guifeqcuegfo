@@ -46,6 +46,8 @@
         <h3>🎒 Mochila</h3>
         <div class="inv-grid" id="inv-grid"></div>
     </div>
+
+    <!-- CRÉDITOS CON ESTILOS FORZADOS PARA QUE NO SE DESORDENEN -->
     <div class="credits" id="creditsPanel">
         <h3>✨ Créditos ✨</h3>
         <div class="credit-item">
@@ -85,6 +87,16 @@
 
     <div id="mission-bar">
         <div id="mission-list"></div>
+    </div>
+
+    <!-- 🎭 DIARIO REBOTANDO (Ahora es tu imagen) -->
+    <img id="diarioBouncing" src="img/periodico.png" style="display: none;" alt="Diario">
+
+    <!-- 🎭 MODAL DE IMAGEN DEL DIARIO -->
+    <div id="imagenDiarioModal" class="diario-modal" style="display: none;">
+        <button id="btnCerrarDiario" class="btn-cerrar-diario">✖</button>
+        <!-- Aquí se vuelve a mostrar tu imagen en grande -->
+        <img src="img/hupidiario.png" alt="Secreto" id="imagenDiarioImg">
     </div>
 
     <audio id="dogToySound" src="sound/freesound_community-squeaky-toy-1-6059.mp3" preload="auto"></audio>

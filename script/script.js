@@ -10,8 +10,7 @@ window.addEventListener("load", () => {
     tituloInicio.textContent = "¿QUIÉN ERES?";
     tituloInicio.style.color = "#ff0000";
     tituloInicio.style.textShadow = "0 0 10px red, 0 0 20px darkred";
-    pantallaInicio.style.backgroundImage =
-      "url('img/background/IMG-20261019-WA0007.jpg')";
+    pantallaInicio.style.backgroundImage = "url('img/background/IMG-20261019-WA0007.jpg')";
     pantallaInicio.style.backgroundSize = "cover";
     pantallaInicio.style.backgroundPosition = "center";
     pantallaInicio.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
@@ -36,7 +35,6 @@ window.addEventListener("load", () => {
   // ==========================================
   // 🔨 SONIDOS DEL MARTILLO AL GOLPEAR A MINIHUPI
   // ==========================================
-  // ⚠️ Si tus archivos son .m4a o .wav, cambia el .mp3 de aquí abajo:
   const martilloSonidosPool = [
     new Audio("sound/dialogos/medio_turbio/turbio1.m4a"),
     new Audio("sound/dialogos/medio_turbio/turbio2.m4a"),
@@ -85,13 +83,17 @@ window.addEventListener("load", () => {
   const inventoryPanel = document.getElementById("inventoryPanel");
   const invGrid = document.getElementById("inv-grid");
 
-  // ✨ CRÉDITOS: referencias DOM
   const btnToggleCredits = document.getElementById("btnToggleCredits");
   const creditsPanel = document.getElementById("creditsPanel");
 
   const hammerImage = document.getElementById("hammerImage");
   const hammerHitSound = document.getElementById("hammerHitSound");
   const levelUpSound = document.getElementById("levelUpSound");
+
+  // 🎭 DIARIO
+  const diarioBouncing = document.getElementById("diarioBouncing");
+  const imagenDiarioModal = document.getElementById("imagenDiarioModal");
+  const btnCerrarDiario = document.getElementById("btnCerrarDiario");
 
   const bgMusic = new Audio();
   bgMusic.loop = true;
@@ -159,49 +161,27 @@ window.addEventListener("load", () => {
 
   function playEquipSound() {
     equipSound.currentTime = 0;
-    equipSound
-      .play()
-      .catch((e) => console.log("Audio de equipar no encontrado"));
+    equipSound.play().catch((e) => console.log("Audio de equipar no encontrado"));
   }
 
-  // 🔨 Reproduce un sonido aleatorio del pool del martillo
   function playRandomMartilloSound() {
-    const audio =
-      martilloSonidosPool[
-        Math.floor(Math.random() * martilloSonidosPool.length)
-      ];
+    const audio = martilloSonidosPool[Math.floor(Math.random() * martilloSonidosPool.length)];
     audio.currentTime = 0;
-    audio
-      .play()
-      .catch((e) => console.log("Audio de martillo bloqueado o no encontrado"));
+    audio.play().catch((e) => console.log("Audio de martillo bloqueado o no encontrado"));
   }
 
   function playRandomDialog() {
-    const audio =
-      dialogosAudioPool[Math.floor(Math.random() * dialogosAudioPool.length)];
+    const audio = dialogosAudioPool[Math.floor(Math.random() * dialogosAudioPool.length)];
     audio.currentTime = 0;
-    audio
-      .play()
-      .catch((e) => console.log("Audio de diálogo bloqueado o no encontrado"));
+    audio.play().catch((e) => console.log("Audio de diálogo bloqueado o no encontrado"));
   }
 
   function playRandomReinicioSound() {
-    const audio =
-      audiosReinicioPool[Math.floor(Math.random() * audiosReinicioPool.length)];
+    const audio = audiosReinicioPool[Math.floor(Math.random() * audiosReinicioPool.length)];
     audio.currentTime = 0;
-    audio
-      .play()
-      .catch((e) => console.log("Audio de reinicio bloqueado o no encontrado"));
+    audio.play().catch((e) => console.log("Audio de reinicio bloqueado o no encontrado"));
   }
 
-  // 🎵 Música de fondo por nivel usando tu carpeta sound/backsound/.
-  // Nivel 5 → background_musicparte1
-  // Nivel 6 → background_musicparte2
-  // Nivel 7 → background_musicparte3
-  // Nivel 8 → background_musicparte4  (SIN loop)
-  // Nivel 9 → background_musicparte5
-  // Nivel 10 → background_musicparte6
-  // Nivel 11 → background_musicparte7
   function updateBackgroundMusic(nivel) {
     if (nivel >= 5) {
       const parte = nivel - 4;
@@ -211,11 +191,7 @@ window.addEventListener("load", () => {
 
       if (!bgMusic.src.includes(musicPath)) {
         bgMusic.src = musicPath;
-        bgMusic
-          .play()
-          .catch((e) =>
-            console.log(`🎵 Música no encontrada o bloqueada: ${musicPath}`, e),
-          );
+        bgMusic.play().catch((e) => console.log(`🎵 Música no encontrada o bloqueada: ${musicPath}`, e));
       }
     } else {
       bgMusic.pause();
@@ -264,9 +240,7 @@ window.addEventListener("load", () => {
   let ultimoClicTiempo = Date.now();
   let clicsRapidos = 0;
   let temporizadorEstadoMini;
-  let rockTotal = 0,
-    studyTotal = 0,
-    clicsRapidosTotales = 0;
+  let rockTotal = 0, studyTotal = 0, clicsRapidosTotales = 0;
 
   let hupibotsCount = parseInt(localStorage.getItem("lux_hupibots")) || 0;
   let unlockedLevel = 0;
@@ -284,7 +258,15 @@ window.addEventListener("load", () => {
   let nextPrestigeThreshold = 8000;
   let isAskingPrestige = false;
 
-  // 🔨 Añadimos "delado" al objeto de imágenes
+  // 🎭 VARIABLES DEL DIARIO
+  let diarioTarget = Math.floor(Math.random() * 401) + 200; // Entre 200 y 600
+  let diarioMostrado = false;
+  let diarioAnimacionId = null;
+  let diarioX = 0;
+  let diarioY = 0;
+  let diarioVx = 3;
+  let diarioVy = 3;
+
   const imagenesMini = {
     idle: "img/minihupibot/idle.png",
     relaxing: "img/minihupibot/relaxing.png",
@@ -309,7 +291,6 @@ window.addEventListener("load", () => {
     if (window.innerWidth <= 600) leaderboardPanel.classList.remove("show");
   });
 
-  // ✨ CRÉDITOS: toggle del panel
   btnToggleCredits.addEventListener("click", () => {
     creditsPanel.classList.toggle("show");
   });
@@ -322,9 +303,7 @@ window.addEventListener("load", () => {
 
       if (inventoryItems[i]) {
         slot.classList.add("has-item");
-        if (inventoryItems[i].equipped) {
-          slot.classList.add("equipped");
-        }
+        if (inventoryItems[i].equipped) slot.classList.add("equipped");
         slot.innerHTML = `<img src="${inventoryItems[i].img}" alt="${inventoryItems[i].name}">`;
         slot.title = inventoryItems[i].name;
         slot.addEventListener("click", () => useItem(i));
@@ -341,9 +320,7 @@ window.addEventListener("load", () => {
       if (isLocked) {
         isLocked = false;
         unlockedLevel = 5;
-
-        let increment = 100;
-        targetClicks = state.clicks + increment;
+        targetClicks = state.clicks + 100;
         levelStartClicks = state.clicks;
 
         inventoryItems.forEach((invItem) => (invItem.equipped = false));
@@ -353,7 +330,6 @@ window.addEventListener("load", () => {
         hammerImage.style.transition = "none";
         hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
         clickPower = 1;
-
         inventoryPanel.classList.remove("show");
 
         levelUpSound.currentTime = 0;
@@ -377,7 +353,6 @@ window.addEventListener("load", () => {
           hammerImage.style.transition = "none";
           hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
           clickPower = 1;
-
           inventoryPanel.classList.remove("show");
         }
         playEquipSound();
@@ -414,114 +389,18 @@ window.addEventListener("load", () => {
   }
 
   let misiones = [
-    {
-      id: "m_fast10",
-      texto: "Da 10 clics rápidos",
-      meta: 10,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 0,
-      requiereHupi: false,
-    },
-    {
-      id: "m_rock1",
-      texto: "Haz rockear a Hupi",
-      meta: 1,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 0,
-      requiereHupi: true,
-    },
-    {
-      id: "m_study1",
-      texto: "Haz estudiar a Hupi",
-      meta: 1,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 2,
-      requiereHupi: true,
-    },
-    {
-      id: "m_fast50",
-      texto: "Da 50 clics rápidos",
-      meta: 50,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 2,
-      requiereHupi: false,
-    },
-    {
-      id: "m_rock3",
-      texto: "Haz rockear a Hupi 3 veces",
-      meta: 3,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 3,
-      requiereHupi: true,
-    },
-    {
-      id: "m_study3",
-      texto: "Haz estudiar a Hupi 3 veces",
-      meta: 3,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 5,
-      requiereHupi: true,
-    },
-    {
-      id: "m_fast150",
-      texto: "Da 150 clics rápidos",
-      meta: 150,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 5,
-      requiereHupi: false,
-    },
-    {
-      id: "m_rock6",
-      texto: "Haz rockear a Hupi 6 veces",
-      meta: 6,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 6,
-      requiereHupi: true,
-    },
-    {
-      id: "m_study5",
-      texto: "Haz estudiar a Hupi 5 veces",
-      meta: 5,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 8,
-      requiereHupi: true,
-    },
-    {
-      id: "m_fast300",
-      texto: "Da 300 clics rápidos",
-      meta: 300,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 8,
-      requiereHupi: false,
-    },
-    {
-      id: "m_rock10",
-      texto: "Haz rockear a Hupi 10 veces",
-      meta: 10,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 9,
-      requiereHupi: true,
-    },
-    {
-      id: "m_max",
-      texto: "Alcanza el Nivel Máximo",
-      meta: 2000,
-      actual: 0,
-      completada: false,
-      nivelRequerido: 11,
-      requiereHupi: false,
-    },
+    { id: "m_fast10", texto: "Da 10 clics rápidos", meta: 10, actual: 0, completada: false, nivelRequerido: 0, requiereHupi: false },
+    { id: "m_rock1", texto: "Haz rockear a Hupi", meta: 1, actual: 0, completada: false, nivelRequerido: 0, requiereHupi: true },
+    { id: "m_study1", texto: "Haz estudiar a Hupi", meta: 1, actual: 0, completada: false, nivelRequerido: 2, requiereHupi: true },
+    { id: "m_fast50", texto: "Da 50 clics rápidos", meta: 50, actual: 0, completada: false, nivelRequerido: 2, requiereHupi: false },
+    { id: "m_rock3", texto: "Haz rockear a Hupi 3 veces", meta: 3, actual: 0, completada: false, nivelRequerido: 3, requiereHupi: true },
+    { id: "m_study3", texto: "Haz estudiar a Hupi 3 veces", meta: 3, actual: 0, completada: false, nivelRequerido: 5, requiereHupi: true },
+    { id: "m_fast150", texto: "Da 150 clics rápidos", meta: 150, actual: 0, completada: false, nivelRequerido: 5, requiereHupi: false },
+    { id: "m_rock6", texto: "Haz rockear a Hupi 6 veces", meta: 6, actual: 0, completada: false, nivelRequerido: 6, requiereHupi: true },
+    { id: "m_study5", texto: "Haz estudiar a Hupi 5 veces", meta: 5, actual: 0, completada: false, nivelRequerido: 8, requiereHupi: true },
+    { id: "m_fast300", texto: "Da 300 clics rápidos", meta: 300, actual: 0, completada: false, nivelRequerido: 8, requiereHupi: false },
+    { id: "m_rock10", texto: "Haz rockear a Hupi 10 veces", meta: 10, actual: 0, completada: false, nivelRequerido: 9, requiereHupi: true },
+    { id: "m_max", texto: "Alcanza el Nivel Máximo", meta: 2000, actual: 0, completada: false, nivelRequerido: 11, requiereHupi: false },
   ];
 
   function renderMisiones() {
@@ -533,9 +412,7 @@ window.addEventListener("load", () => {
     if (isLocked) {
       misionPrincipalHtml = `
         <div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;">
-            <div class="mission-header" style="color: #ff0000;">
-                <span>Nivel Bloqueado</span>
-            </div>
+            <div class="mission-header" style="color: #ff0000;"><span>Nivel Bloqueado</span></div>
             <div style="font-size: 0.55rem; margin-top: 5px; color: #ffcc00;">Usa el objeto en la Mochila 🎒 para continuar.</div>
         </div>`;
     } else if (sigNivelIndex < 12) {
@@ -551,10 +428,7 @@ window.addEventListener("load", () => {
       if (porcentaje > 100) porcentaje = 100;
       if (porcentaje < 0) porcentaje = 0;
 
-      let nombreMision =
-        state.clicks >= 1000
-          ? "Que sienta tu amor"
-          : `Nivel ${sigNivelIndex + 1}`;
+      let nombreMision = state.clicks >= 1000 ? "Que sienta tu amor" : `Nivel ${sigNivelIndex + 1}`;
 
       misionPrincipalHtml = `
         <div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;">
@@ -568,9 +442,7 @@ window.addEventListener("load", () => {
     let secundariasActivas = misiones
       .filter((m) => {
         let hupiVisible = !m.requiereHupi || state.clicks >= 29;
-        return (
-          !m.completada && m.nivelRequerido <= nivelActualIndex && hupiVisible
-        );
+        return !m.completada && m.nivelRequerido <= nivelActualIndex && hupiVisible;
       })
       .slice(0, 2);
 
@@ -601,27 +473,16 @@ window.addEventListener("load", () => {
     sideImage.src = imagenesMini[estado];
 
     sideImage.classList.remove("estado-relaxing", "estado-jumping");
-
-    if (estado === "relaxing") {
-      sideImage.classList.add("estado-relaxing");
-    } else if (estado === "jumping") {
-      sideImage.classList.add("estado-jumping");
-    }
+    if (estado === "relaxing") sideImage.classList.add("estado-relaxing");
+    else if (estado === "jumping") sideImage.classList.add("estado-jumping");
 
     clearTimeout(temporizadorEstadoMini);
-    if (duracion > 0)
-      temporizadorEstadoMini = setTimeout(
-        () => cambiarEstadoMiniHupi("idle"),
-        duracion,
-      );
+    if (duracion > 0) temporizadorEstadoMini = setTimeout(() => cambiarEstadoMiniHupi("idle"), duracion);
   }
 
   function showItemNotification() {
     notificacionSound.currentTime = 0;
-    notificacionSound
-      .play()
-      .catch((e) => console.log("Audio de notificación no encontrado"));
-
+    notificacionSound.play().catch((e) => console.log("Audio de notificación no encontrado"));
     cambiarEstadoMiniHupi("jumping", 2000);
   }
 
@@ -632,9 +493,6 @@ window.addEventListener("load", () => {
     }, 120000);
   }
 
-  // 🔨 Handler de MiniHupi:
-  // - Si NO hay martillo → rock (como siempre)
-  // - Si SÍ hay martillo → imagen "delado" + sonido aleatorio del pool
   sideImage.addEventListener("click", (e) => {
     e.preventDefault();
     if (!juegoIniciado) return;
@@ -650,6 +508,74 @@ window.addEventListener("load", () => {
       actualizarMisiones();
     }
     resetearInactividad();
+  });
+
+  // 🎭 FUNCIONES DEL DIARIO
+  function resetearDiario() {
+    diarioTarget = Math.floor(Math.random() * 401) + 200;
+    diarioMostrado = false;
+    detenerDiarioBouncing();
+    imagenDiarioModal.style.display = "none";
+  }
+
+  function iniciarDiarioBouncing() {
+    diarioBouncing.style.display = "block";
+    diarioX = Math.random() * (window.innerWidth - 100);
+    diarioY = Math.random() * (window.innerHeight - 100);
+    diarioVx = (Math.random() > 0.5 ? 1 : -1) * (3 + Math.random() * 2);
+    diarioVy = (Math.random() > 0.5 ? 1 : -1) * (3 + Math.random() * 2);
+    animarDiario();
+  }
+
+  function detenerDiarioBouncing() {
+    diarioBouncing.style.display = "none";
+    if (diarioAnimacionId) {
+      cancelAnimationFrame(diarioAnimacionId);
+      diarioAnimacionId = null;
+    }
+  }
+
+  function animarDiario() {
+    if (diarioBouncing.style.display === "none") return;
+    
+    const rect = diarioBouncing.getBoundingClientRect();
+    const maxX = window.innerWidth - rect.width;
+    const maxY = window.innerHeight - rect.height;
+
+    diarioX += diarioVx;
+    diarioY += diarioVy;
+
+    if (diarioX <= 0 || diarioX >= maxX) {
+      diarioVx *= -1;
+      diarioX = Math.max(0, Math.min(diarioX, maxX));
+    }
+    if (diarioY <= 0 || diarioY >= maxY) {
+      diarioVy *= -1;
+      diarioY = Math.max(0, Math.min(diarioY, maxY));
+    }
+
+    diarioBouncing.style.left = diarioX + "px";
+    diarioBouncing.style.top = diarioY + "px";
+
+    diarioAnimacionId = requestAnimationFrame(animarDiario);
+  }
+
+  function checkDiario() {
+    if (!diarioMostrado && juegoIniciado) {
+      if (state.clicks >= diarioTarget || state.clicks >= 666) {
+        diarioMostrado = true;
+        iniciarDiarioBouncing();
+      }
+    }
+  }
+
+  diarioBouncing.addEventListener("click", () => {
+    detenerDiarioBouncing();
+    imagenDiarioModal.style.display = "flex";
+  });
+
+  btnCerrarDiario.addEventListener("click", () => {
+    imagenDiarioModal.style.display = "none";
   });
 
   function cargarTablaLocal() {
@@ -681,15 +607,9 @@ window.addEventListener("load", () => {
         let datos = JSON.parse(sesionGuardada);
         if (datos && datos.puntos > 5) {
           let records = JSON.parse(localStorage.getItem("lux_records")) || [];
-          records.push({
-            nombre: String(datos.nombre),
-            puntos: Number(datos.puntos),
-          });
+          records.push({ nombre: String(datos.nombre), puntos: Number(datos.puntos) });
           records.sort((a, b) => Number(b.puntos) - Number(a.puntos));
-          localStorage.setItem(
-            "lux_records",
-            JSON.stringify(records.slice(0, 5)),
-          );
+          localStorage.setItem("lux_records", JSON.stringify(records.slice(0, 5)));
         }
         sessionStorage.removeItem("lux_sesion_actual");
       }
@@ -702,22 +622,13 @@ window.addEventListener("load", () => {
     if (probabilidadInicio !== 1) {
       try {
         introAudio.currentTime = 0;
-        introAudio.play().catch((err) => {
-          console.warn(
-            "🎵 Audio de bienvenida bloqueado:",
-            err.name,
-            err.message,
-          );
-        });
+        introAudio.play().catch((err) => console.warn("🎵 Audio de bienvenida bloqueado:", err.name, err.message));
       } catch (err) {
         console.warn("🎵 Error al reproducir bienvenida:", err);
       }
     }
 
-    playerName =
-      inputNombre.value.trim() === ""
-        ? "Anónimo"
-        : inputNombre.value.trim().substring(0, 12);
+    playerName = inputNombre.value.trim() === "" ? "Anónimo" : inputNombre.value.trim().substring(0, 12);
     pantallaInicio.style.display = "none";
     juegoIniciado = true;
 
@@ -736,6 +647,8 @@ window.addEventListener("load", () => {
     bgMusic.pause();
     bgMusic.currentTime = 0;
 
+    resetearDiario(); // 🎭 Reiniciar diario
+
     renderInventory();
     actualizarUI();
     resetearInactividad();
@@ -746,9 +659,7 @@ window.addEventListener("load", () => {
 
   function abrirMenuTrampas() {
     if (!juegoIniciado) return;
-    let codigo = prompt(
-      "MODO DESARROLLADOR\n\nEscribe:\n- Un número (ej. 500)\n- 'max' (2100 clics)\n- 'reset' (Volver a 0)",
-    );
+    let codigo = prompt("MODO DESARROLLADOR\n\nEscribe:\n- Un número (ej. 500)\n- 'max' (2100 clics)\n- 'reset' (Volver a 0)");
     if (codigo === null) return;
     codigo = codigo.toLowerCase().trim();
 
@@ -763,6 +674,7 @@ window.addEventListener("load", () => {
       hammerImage.style.display = "none";
       clickPower = 1;
       updateBackgroundMusic(11);
+      resetearDiario();
     } else if (codigo === "reset") {
       state.clicks = 0;
       unlockedLevel = 0;
@@ -780,6 +692,7 @@ window.addEventListener("load", () => {
       hammerImage.style.display = "none";
       bgMusic.pause();
       bgMusic.currentTime = 0;
+      resetearDiario();
 
       misiones.forEach((m) => {
         m.completada = false;
@@ -795,63 +708,24 @@ window.addEventListener("load", () => {
       isLocked = false;
       clickPower = 1;
       state.clicks = target;
+      resetearDiario();
 
       if (state.clicks < 250) {
-        unlockedLevel = 0;
-        levelStartClicks = 0;
-        targetClicks = 250;
+        unlockedLevel = 0; levelStartClicks = 0; targetClicks = 250;
       } else if (state.clicks < 500) {
-        unlockedLevel = 1;
-        levelStartClicks = 250;
-        targetClicks = 500;
-        inventoryItems.push({
-          name: "Guante de lana",
-          type: "glove",
-          img: "img/guante.png",
-          equipped: false,
-        });
+        unlockedLevel = 1; levelStartClicks = 250; targetClicks = 500;
+        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
       } else if (state.clicks < 750) {
-        unlockedLevel = 2;
-        levelStartClicks = 500;
-        targetClicks = 750;
-        inventoryItems.push({
-          name: "Guante de lana",
-          type: "glove",
-          img: "img/guante.png",
-          equipped: false,
-        });
+        unlockedLevel = 2; levelStartClicks = 500; targetClicks = 750;
+        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
       } else if (state.clicks < 1000) {
-        unlockedLevel = 3;
-        levelStartClicks = 750;
-        targetClicks = 1000;
-        inventoryItems.push({
-          name: "Guante de lana",
-          type: "glove",
-          img: "img/guante.png",
-          equipped: false,
-        });
-        inventoryItems.push({
-          name: "Matamoscas",
-          type: "flyswatter",
-          img: "img/matamoscas.png",
-          equipped: false,
-        });
+        unlockedLevel = 3; levelStartClicks = 750; targetClicks = 1000;
+        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
+        inventoryItems.push({ name: "Matamoscas", type: "flyswatter", img: "img/matamoscas.png", equipped: false });
       } else if (state.clicks < 1250) {
-        unlockedLevel = 4;
-        levelStartClicks = 1000;
-        targetClicks = 1250;
-        inventoryItems.push({
-          name: "Guante de lana",
-          type: "glove",
-          img: "img/guante.png",
-          equipped: false,
-        });
-        inventoryItems.push({
-          name: "Matamoscas",
-          type: "flyswatter",
-          img: "img/matamoscas.png",
-          equipped: false,
-        });
+        unlockedLevel = 4; levelStartClicks = 1000; targetClicks = 1250;
+        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
+        inventoryItems.push({ name: "Matamoscas", type: "flyswatter", img: "img/matamoscas.png", equipped: false });
       } else {
         unlockedLevel = 5 + Math.floor((state.clicks - 1250) / 100);
         if (unlockedLevel > 11) unlockedLevel = 11;
@@ -859,24 +733,9 @@ window.addEventListener("load", () => {
         targetClicks = 1250 + (unlockedLevel - 4) * 100;
         if (targetClicks <= state.clicks) targetClicks = state.clicks + 100;
 
-        inventoryItems.push({
-          name: "Guante de lana",
-          type: "glove",
-          img: "img/guante.png",
-          equipped: false,
-        });
-        inventoryItems.push({
-          name: "Matamoscas",
-          type: "flyswatter",
-          img: "img/matamoscas.png",
-          equipped: false,
-        });
-        inventoryItems.push({
-          name: "Martillo",
-          type: "hammer",
-          img: "img/martillo.png",
-          equipped: false,
-        });
+        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
+        inventoryItems.push({ name: "Matamoscas", type: "flyswatter", img: "img/matamoscas.png", equipped: false });
+        inventoryItems.push({ name: "Martillo", type: "hammer", img: "img/martillo.png", equipped: false });
       }
 
       updateBackgroundMusic(unlockedLevel);
@@ -924,66 +783,18 @@ window.addEventListener("load", () => {
   tituloH1.addEventListener("pointerleave", cancelarPresion);
 
   const niveles = [
-    {
-      limite: 0,
-      normal: "img/hupiframes/hupi frames 1.png",
-      presionada: "img/hupiframes/hupi frames 2.png",
-    },
-    {
-      limite: 250,
-      normal: "img/hupiframes/hupi frames 3.png",
-      presionada: "img/hupiframes/hupi frames 4.png",
-    },
-    {
-      limite: 500,
-      normal: "img/hupiframes/hupi frames 5.png",
-      presionada: "img/hupiframes/hupi frames 6.png",
-    },
-    {
-      limite: 750,
-      normal: "img/hupiframes/hupi frames 7.png",
-      presionada: "img/hupiframes/hupi frames 8.png",
-    },
-    {
-      limite: 1000,
-      normal: "img/hupiframes/hupi frames 9.png",
-      presionada: "img/hupiframes/hupi frames 10.png",
-    },
-    {
-      limite: 1250,
-      normal: "img/hupiframes/hupi frames 11.png",
-      presionada: "img/hupiframes/hupi frames 12.png",
-    },
-    {
-      limite: 1350,
-      normal: "img/hupiframes/hupi frames 13.png",
-      presionada: "img/hupiframes/hupi frames 14.png",
-    },
-    {
-      limite: 1450,
-      normal: "img/hupiframes/hupi frames 15.png",
-      presionada: "img/hupiframes/hupi frames 16.png",
-    },
-    {
-      limite: 1550,
-      normal: "img/hupiframes/hupi frames 17.png",
-      presionada: "img/hupiframes/hupi frames 18.png",
-    },
-    {
-      limite: 1650,
-      normal: "img/hupiframes/hupi frames 19.png",
-      presionada: "img/hupiframes/hupi frames 20.png",
-    },
-    {
-      limite: 1750,
-      normal: "img/hupiframes/hupi frames 21.png",
-      presionada: "img/hupiframes/hupi frames 22.png",
-    },
-    {
-      limite: 1850,
-      normal: "img/hupiframes/hupi frames 23.png",
-      presionada: "img/hupiframes/hupi frames 24.png",
-    },
+    { limite: 0, normal: "img/hupiframes/hupi frames 1.png", presionada: "img/hupiframes/hupi frames 2.png" },
+    { limite: 250, normal: "img/hupiframes/hupi frames 3.png", presionada: "img/hupiframes/hupi frames 4.png" },
+    { limite: 500, normal: "img/hupiframes/hupi frames 5.png", presionada: "img/hupiframes/hupi frames 6.png" },
+    { limite: 750, normal: "img/hupiframes/hupi frames 7.png", presionada: "img/hupiframes/hupi frames 8.png" },
+    { limite: 1000, normal: "img/hupiframes/hupi frames 9.png", presionada: "img/hupiframes/hupi frames 10.png" },
+    { limite: 1250, normal: "img/hupiframes/hupi frames 11.png", presionada: "img/hupiframes/hupi frames 12.png" },
+    { limite: 1350, normal: "img/hupiframes/hupi frames 13.png", presionada: "img/hupiframes/hupi frames 14.png" },
+    { limite: 1450, normal: "img/hupiframes/hupi frames 15.png", presionada: "img/hupiframes/hupi frames 16.png" },
+    { limite: 1550, normal: "img/hupiframes/hupi frames 17.png", presionada: "img/hupiframes/hupi frames 18.png" },
+    { limite: 1650, normal: "img/hupiframes/hupi frames 19.png", presionada: "img/hupiframes/hupi frames 20.png" },
+    { limite: 1750, normal: "img/hupiframes/hupi frames 21.png", presionada: "img/hupiframes/hupi frames 22.png" },
+    { limite: 1850, normal: "img/hupiframes/hupi frames 23.png", presionada: "img/hupiframes/hupi frames 24.png" },
   ];
 
   const fondos = [
@@ -998,11 +809,8 @@ window.addEventListener("load", () => {
     scoreEl.textContent = Math.floor(state.clicks);
     hupibotsEl.textContent = hupibotsCount;
 
-    if (hupibotsCount > 0) {
-      hupibotsContainer.style.display = "block";
-    } else {
-      hupibotsContainer.style.display = "none";
-    }
+    if (hupibotsCount > 0) hupibotsContainer.style.display = "block";
+    else hupibotsContainer.style.display = "none";
 
     let nivelVisualIndex = unlockedLevel;
     if (nivelVisualIndex > 11) nivelVisualIndex = 11;
@@ -1012,14 +820,10 @@ window.addEventListener("load", () => {
       tituloH1.textContent = "no quiero amar";
       tituloH1.style.color = "#ff0000";
       tituloH1.style.textShadow = "0 0 10px red, 0 0 20px darkred";
-      fondoDiv.style.filter =
-        "sepia(1) hue-rotate(-50deg) saturate(2) brightness(0.5)";
+      fondoDiv.style.filter = "sepia(1) hue-rotate(-50deg) saturate(2) brightness(0.5)";
     } else {
-      if (state.clicks >= 1000) {
-        tituloH1.textContent = "Que sienta tu amor";
-      } else {
-        tituloH1.textContent = "Acaricia a Hupibot";
-      }
+      if (state.clicks >= 1000) tituloH1.textContent = "Que sienta tu amor";
+      else tituloH1.textContent = "Acaricia a Hupibot";
 
       clickBtn.className = "click-btn";
 
@@ -1044,8 +848,7 @@ window.addEventListener("load", () => {
     }
 
     if (state.clicks >= 29) {
-      if (sideImage.style.display === "none" || sideImage.style.display === "")
-        sideImage.style.display = "block";
+      if (sideImage.style.display === "none" || sideImage.style.display === "") sideImage.style.display = "block";
     } else {
       sideImage.style.display = "none";
     }
@@ -1074,19 +877,11 @@ window.addEventListener("load", () => {
   }
 
   function checkPrestige() {
-    if (
-      hammerActive &&
-      state.clicks >= nextPrestigeThreshold &&
-      !isAskingPrestige
-    ) {
+    if (hammerActive && state.clicks >= nextPrestigeThreshold && !isAskingPrestige) {
       isAskingPrestige = true;
 
       setTimeout(() => {
-        if (
-          confirm(
-            `¡Has alcanzado los ${nextPrestigeThreshold} clics!\n\n¿Quieres reemplazar a la Hupibot descompuesta?`,
-          )
-        ) {
+        if (confirm(`¡Has alcanzado los ${nextPrestigeThreshold} clics!\n\n¿Quieres reemplazar a la Hupibot descompuesta?`)) {
           playRandomReinicioSound();
 
           hupibotsCount++;
@@ -1104,6 +899,8 @@ window.addEventListener("load", () => {
           hammerImage.style.display = "none";
           clearTimeout(hammerFallTimer);
           hammerCharge = 0;
+
+          resetearDiario();
 
           renderInventory();
           playThickMetalSound();
@@ -1123,24 +920,19 @@ window.addEventListener("load", () => {
     isSwinging = true;
     clearTimeout(hammerFallTimer);
 
-    hammerImage.style.transition =
-      "transform 0.15s cubic-bezier(0.6, -0.28, 0.735, 0.045)";
+    hammerImage.style.transition = "transform 0.15s cubic-bezier(0.6, -0.28, 0.735, 0.045)";
     hammerImage.style.transform = `translate(-100px, 80px) rotate(-70deg)`;
 
     setTimeout(() => {
       let ganancia = hammerCharge * clickPower;
       state.clicks += ganancia;
+      checkDiario();
 
       hammerHitSound.currentTime = 0;
       hammerHitSound.play().catch((e) => {});
 
       triggerGlitch();
-      mostrarFlotante(
-        window.innerWidth / 2,
-        window.innerHeight / 2,
-        `+${ganancia}`,
-        "#ffcc00",
-      );
+      mostrarFlotante(window.innerWidth / 2, window.innerHeight / 2, `+${ganancia}`, "#ffcc00");
 
       hammerCharge = 0;
 
@@ -1169,32 +961,17 @@ window.addEventListener("load", () => {
 
       if (nextLevel === 1) {
         unlockedLevel = 1;
-        inventoryItems.push({
-          name: "Guante de lana",
-          type: "glove",
-          img: "img/guante.png",
-          equipped: false,
-        });
+        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
         renderInventory();
         showItemNotification();
       } else if (nextLevel === 3) {
         unlockedLevel = 3;
-        inventoryItems.push({
-          name: "Matamoscas",
-          type: "flyswatter",
-          img: "img/matamoscas.png",
-          equipped: false,
-        });
+        inventoryItems.push({ name: "Matamoscas", type: "flyswatter", img: "img/matamoscas.png", equipped: false });
         renderInventory();
         showItemNotification();
       } else if (nextLevel === 5) {
         isLocked = true;
-        inventoryItems.push({
-          name: "Martillo",
-          type: "hammer",
-          img: "img/martillo.png",
-          equipped: false,
-        });
+        inventoryItems.push({ name: "Martillo", type: "hammer", img: "img/martillo.png", equipped: false });
         renderInventory();
         showItemNotification();
         break;
@@ -1233,8 +1010,7 @@ window.addEventListener("load", () => {
         window.open("", "_self", "");
         window.close();
         setTimeout(() => {
-          document.body.innerHTML =
-            "<h1 style='color:white; font-family:sans-serif; text-align:center; margin-top:20%;'>El vacío te ha consumido.</h1>";
+          document.body.innerHTML = "<h1 style='color:white; font-family:sans-serif; text-align:center; margin-top:20%;'>El vacío te ha consumido.</h1>";
         }, 100);
         return;
       }
@@ -1308,17 +1084,14 @@ window.addEventListener("load", () => {
     }
 
     let nextThreshold = targetClicks;
-    if (
-      state.clicks + clickPower >= nextThreshold &&
-      !isLocked &&
-      unlockedLevel < 11
-    ) {
+    if (state.clicks + clickPower >= nextThreshold && !isLocked && unlockedLevel < 11) {
       state.clicks = nextThreshold;
     } else {
       state.clicks += clickPower;
     }
 
     checkLevelUp(false);
+    checkDiario();
 
     let nivelVisualIndex = unlockedLevel;
     if (nivelVisualIndex > 11) nivelVisualIndex = 11;
@@ -1337,10 +1110,7 @@ window.addEventListener("load", () => {
     else btnImage.src = nivelVisualActual.presionada;
 
     try {
-      sessionStorage.setItem(
-        "lux_sesion_actual",
-        JSON.stringify({ nombre: playerName, puntos: state.clicks }),
-      );
+      sessionStorage.setItem("lux_sesion_actual", JSON.stringify({ nombre: playerName, puntos: state.clicks }));
     } catch (e) {}
 
     actualizarUI();

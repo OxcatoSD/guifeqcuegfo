@@ -204,16 +204,14 @@ h1 {
 }
 
 @keyframes latido {
-    0% {
+
+    0%,
+    100% {
         transform: scale(1);
     }
 
     50% {
         transform: scale(1.03);
-    }
-
-    100% {
-        transform: scale(1);
     }
 }
 
@@ -260,23 +258,12 @@ h1 {
     transform: scale(1.4);
 }
 
-.side-animation.estado-relaxing:hover {
-    left: 22%;
-    top: 46px;
-    transform: scale(1.5);
-}
-
-/* === NUEVA ANIMACIÓN DE SALTO (MÁS GRANDE) === */
 .side-animation.estado-jumping {
     transform: scale(1.8);
-    /* Lo hace casi el doble de grande */
     z-index: 50;
-    /* Lo pone por encima de otros elementos */
     filter: drop-shadow(0 0 15px #ffcc00);
-    /* Brillo dorado */
 }
 
-/* Brillo de las etapas del botón */
 .stage-300 {
     box-shadow: 0 0 40px #ffaa00;
 }
@@ -451,42 +438,55 @@ h1 {
     display: flex;
 }
 
-/* === CRÉDITOS === */
-.credits {
-    left: 15px;
-    right: auto;
-    bottom: 60px;
+/* === CRÉDITOS (Forzados) === */
+#creditsPanel {
+    position: fixed !important;
+    left: 15px !important;
+    bottom: 60px !important;
+    right: auto !important;
+    top: auto !important;
+    background: rgba(0, 0, 0, 0.9) !important;
+    border: 2px solid #00ffff !important;
+    border-radius: 10px !important;
+    padding: 12px 15px !important;
+    font-family: 'Press Start 2P', cursive !important;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3) !important;
+    z-index: 1001 !important;
     display: none;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 200px;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: max-content !important;
+    max-width: 90vw !important;
 }
 
-.credits.show {
-    display: flex;
+#creditsPanel.show {
+    display: flex !important;
 }
 
-.credits h3 {
-    font-size: 0.6rem;
-    color: #00ffff;
-    margin-bottom: 5px;
-    text-align: center;
+#creditsPanel h3 {
+    font-size: 0.6rem !important;
+    color: #00ffff !important;
+    margin-bottom: 5px !important;
+    text-align: center !important;
 }
 
-.credit-item {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    font-size: 0.5rem;
-    line-height: 1.6;
+#creditsPanel .credit-item {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 20px !important;
+    font-size: 0.45rem !important;
+    line-height: 1.6 !important;
+    width: 100% !important;
 }
 
-.credit-role {
-    color: #ffcc00;
+#creditsPanel .credit-role {
+    color: #ffcc00 !important;
 }
 
-.credit-name {
-    color: #00ffff;
+#creditsPanel .credit-name {
+    color: #00ffff !important;
+    text-align: right !important;
 }
 
 #mission-bar {
@@ -554,6 +554,71 @@ h1 {
     transform: translate(0px, 0px) rotate(15deg);
 }
 
+/* === 🎭 DIARIO REBOTANDO === */
+#diarioBouncing {
+    position: fixed;
+    width: clamp(70px, 15vw, 120px);
+    height: auto;
+    cursor: pointer;
+    z-index: 5000;
+    filter: drop-shadow(0px 0px 15px rgba(0, 255, 255, 0.8));
+    transition: transform 0.1s;
+}
+
+#diarioBouncing:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* === 🎭 MODAL DE LA IMAGEN === */
+.diario-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 99999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.diario-modal img {
+    max-width: 90%;
+    max-height: 85%;
+    object-fit: contain;
+    border: 4px solid #00ffff;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+    background: #111;
+    /* Por si la imagen es transparente */
+}
+
+.btn-cerrar-diario {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100000;
+    transition: transform 0.1s, background 0.1s;
+}
+
+.btn-cerrar-diario:hover {
+    background: red;
+    transform: scale(1.1);
+}
+
 @media (max-width: 600px) {
     #btnToggleLeaderboard {
         display: block;
@@ -568,7 +633,6 @@ h1 {
         left: auto;
     }
 
-    /* El botón de créditos va por encima de la barra de misiones en móvil */
     #btnToggleCredits {
         bottom: 95px;
         left: 15px;
@@ -609,16 +673,15 @@ h1 {
         left: auto;
     }
 
-    .credits {
-        left: 15px;
-        right: auto;
-        bottom: 140px;
-        min-width: 170px;
-        padding: 8px 12px;
+    #creditsPanel {
+        left: 15px !important;
+        bottom: 140px !important;
+        min-width: 200px !important;
+        padding: 8px 12px !important;
     }
 
-    .credit-item {
-        font-size: 0.45rem;
+    #creditsPanel .credit-item {
+        font-size: 0.4rem !important;
     }
 
     h1 {
@@ -639,11 +702,9 @@ h1 {
         transform: scale(1.15);
     }
 
-    /* Adaptación del salto en móviles */
     .side-animation.estado-jumping {
         transform: scale(1.5);
         left: 10px;
-        /* Evita que se salga de la pantalla */
     }
 
     .click-area {
