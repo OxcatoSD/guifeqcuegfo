@@ -22,12 +22,16 @@ window.addEventListener("load", () => {
   // ==========================================
   // 🎵 AUDIO DE BIENVENIDA
   // ==========================================
-  // Se reproduce al pulsar "Comenzar" (garantía de autoplay).
-  // NO se reproduce si el easter egg de inicio está activo.
-  // (Si quieres que suene también con easter egg, borra el `if` de abajo.)
-  const introAudio = new Audio("sound/bienvenida1.mp3"); // ← tu archivo aquí
+  const introAudio = new Audio("sound/bienvenida1.mp3");
   introAudio.preload = "auto";
   introAudio.volume = 0.8;
+
+  // ==========================================
+  // 🎧 AUDIO DE EQUIPAR/DESEQUIPAR OBJETO
+  // ==========================================
+  const equipSound = new Audio("sound/equip.mp3");
+  equipSound.preload = "auto";
+  equipSound.volume = 0.8;
 
   const probabilidadJuego = Math.floor(Math.random() * 1000) + 1;
   let easterEggJuegoActivo = false;
@@ -119,6 +123,13 @@ window.addEventListener("load", () => {
     metalSound.currentTime = 0;
     metalSound.playbackRate = 0.7;
     metalSound.play().catch((e) => console.log("Audio bloqueado"));
+  }
+
+  function playEquipSound() {
+    equipSound.currentTime = 0;
+    equipSound
+      .play()
+      .catch((e) => console.log("Audio de equipar no encontrado"));
   }
 
   function playRandomDialog() {
@@ -264,6 +275,7 @@ window.addEventListener("load", () => {
 
     if (item.type === "hammer") {
       if (isLocked) {
+        // 🔓 Romper el bloqueo: momento especial → levelUpSound
         isLocked = false;
         unlockedLevel = 5;
 
@@ -305,6 +317,8 @@ window.addEventListener("load", () => {
 
           inventoryPanel.classList.remove("show");
         }
+        // 🎧 Sonido al equipar/desequipar el martillo
+        playEquipSound();
       }
       renderInventory();
       actualizarUI();
@@ -328,7 +342,8 @@ window.addEventListener("load", () => {
         hammerCharge = 0;
         hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
       }
-      playThickMetalSound();
+      // 🎧 Sonido al equipar/desequipar guante o matamoscas
+      playEquipSound();
     }
 
     renderInventory();
@@ -620,9 +635,6 @@ window.addEventListener("load", () => {
     // ==========================================
     // 🎵 AUDIO DE BIENVENIDA AL PRESIONAR "COMENZAR"
     // ==========================================
-    // Al hacer clic en el botón, es un gesto de usuario real,
-    // así que el navegador deja sonar el audio sin problema.
-    // (Excluido en el easter egg del inicio.)
     if (probabilidadInicio !== 1) {
       try {
         introAudio.currentTime = 0;
