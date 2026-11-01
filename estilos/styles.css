@@ -130,6 +130,7 @@ h1 {
     padding: 0 10px;
     animation: neon-flicker 4s infinite alternate;
     z-index: 5;
+    cursor: pointer;
 }
 
 @keyframes neon-flicker {
@@ -265,6 +266,17 @@ h1 {
     transform: scale(1.5);
 }
 
+/* === NUEVA ANIMACIÓN DE SALTO (MÁS GRANDE) === */
+.side-animation.estado-jumping {
+    transform: scale(1.8);
+    /* Lo hace casi el doble de grande */
+    z-index: 50;
+    /* Lo pone por encima de otros elementos */
+    filter: drop-shadow(0 0 15px #ffcc00);
+    /* Brillo dorado */
+}
+
+/* Brillo de las etapas del botón */
 .stage-300 {
     box-shadow: 0 0 40px #ffaa00;
 }
@@ -489,13 +501,10 @@ h1 {
     position: absolute;
     top: -60px;
     left: 70%;
-    /* A la derecha del botón */
     width: clamp(60px, 20vw, 100px);
     z-index: 15;
-    /* El pivote está en la base del mango (abajo a la derecha) */
     transform-origin: bottom right;
     pointer-events: none;
-    /* Rotación inicial para que parezca en reposo */
     transform: translate(0px, 0px) rotate(15deg);
 }
 
@@ -566,6 +575,13 @@ h1 {
         transform: scale(1.15);
     }
 
+    /* Adaptación del salto en móviles */
+    .side-animation.estado-jumping {
+        transform: scale(1.5);
+        left: 10px;
+        /* Evita que se salga de la pantalla */
+    }
+
     .click-area {
         margin-bottom: 80px;
     }
@@ -586,6 +602,7 @@ h1 {
     }
 }
 
+/* === EFECTO GLITCH === */
 #glitch-overlay {
     position: fixed;
     top: 0;
