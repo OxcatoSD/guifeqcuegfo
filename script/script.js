@@ -150,20 +150,34 @@ window.addEventListener("load", () => {
       .catch((e) => console.log("Audio de reinicio bloqueado o no encontrado"));
   }
 
+  // 🎵 Música de fondo por nivel usando tu carpeta sound/backsound/.
+  // Nivel 5 → background_musicparte1
+  // Nivel 6 → background_musicparte2
+  // Nivel 7 → background_musicparte3
+  // Nivel 8 → background_musicparte4  (SIN loop)
+  // Nivel 9 → background_musicparte5
+  // Nivel 10 → background_musicparte6
+  // Nivel 11 → background_musicparte7
   function updateBackgroundMusic(nivel) {
     if (nivel >= 5) {
-      let musicIndex = Math.min(nivel, 10);
-      let musicPath = `sound/music/music${musicIndex - 4}.m4a`;
+      const parte = nivel - 4;
+      const musicPath = `sound/backsound/background_musicparte${parte}.mp3`;
+
+      // El nivel 8 no tiene loop; el resto sí.
+      bgMusic.loop = nivel !== 8;
 
       if (!bgMusic.src.includes(musicPath)) {
         bgMusic.src = musicPath;
         bgMusic
           .play()
-          .catch((e) => console.log("Música no encontrada o bloqueada"));
+          .catch((e) =>
+            console.log(`🎵 Música no encontrada o bloqueada: ${musicPath}`, e),
+          );
       }
     } else {
       bgMusic.pause();
       bgMusic.currentTime = 0;
+      bgMusic.loop = true; // restaurar el loop por defecto
     }
   }
 
