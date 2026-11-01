@@ -24,6 +24,12 @@
     <div class="score-container">
         <span class="score-label">Pat-pats:</span>
         <div class="score" id="score">0</div>
+        
+        <!-- CONTENEDOR DE HUPIBOTS OCULTO POR DEFECTO -->
+        <div id="hupibots-container" style="display: none; margin-top: 15px;">
+            <span class="score-label" style="color: #ff00ff; text-shadow: 0 0 5px #ff00ff;">Hupibots:</span>
+            <div class="score" id="hupibots" style="font-size: 1.2rem; color: #ff00ff; text-shadow: 0 0 10px #ff00ff;">0</div>
+        </div>
     </div>
 
     <button id="btnToggleLeaderboard">🏆</button>
@@ -48,25 +54,20 @@
 
         <img src="img/martillo.png" id="hammerImage" style="display: none;">
 
-        <img src="img/minihupibot/idle.png" id="sideImage" class="side-animation" style="display: none;"
-            alt="Mini Hupibot">
+        <img src="img/minihupibot/idle.png" id="sideImage" class="side-animation" style="display: none;" alt="Mini Hupibot">
     </div>
 
     <div id="mission-bar">
         <div id="mission-list"></div>
     </div>
 
-    <!-- SONIDOS EXISTENTES -->
     <audio id="dogToySound" src="sound/freesound_community-squeaky-toy-1-6059.mp3" preload="auto"></audio>
     <audio id="crakckedSound" src="sound/audiopapkin-squeak-metal-ps-016-389413.mp3" preload="auto"></audio>
     <audio id="rockSound" src="sound/rock.mp3" preload="auto"></audio>
-
-    <!-- NUEVOS SONIDOS (CAMBIA LOS NOMBRES DE LOS ARCHIVOS AQUÍ) -->
     <audio id="hammerHitSound" src="sound/golpe normal.mp3" preload="auto"></audio>
     <audio id="levelUpSound" src="sound/golpe fatal _ cambio de nivel_.mp3" preload="auto"></audio>
 
     <script src="script/script.js"></script>
 
 </body>
-
 </html>

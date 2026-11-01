@@ -7,7 +7,7 @@ window.addEventListener("load", () => {
     const pantallaInicio = document.getElementById("pantalla-inicio");
     const tituloInicio = pantallaInicio.querySelector("h2");
     const textoInicio = pantallaInicio.querySelector("p");
-    tituloInicio.textContent = "¿מן את?";
+    tituloInicio.textContent = "¿QUIÉN ERES?";
     tituloInicio.style.color = "#ff0000";
     tituloInicio.style.textShadow = "0 0 10px red, 0 0 20px darkred";
     pantallaInicio.style.backgroundImage =
@@ -15,9 +15,19 @@ window.addEventListener("load", () => {
     pantallaInicio.style.backgroundSize = "cover";
     pantallaInicio.style.backgroundPosition = "center";
     pantallaInicio.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-    textoInicio.textContent = "nombre su alma...";
+    textoInicio.textContent = "Escribe tu nombre si te atreves...";
     textoInicio.style.color = "#ff3333";
   }
+
+  // ==========================================
+  // 🎵 AUDIO DE BIENVENIDA
+  // ==========================================
+  // Se reproduce al pulsar "Comenzar" (garantía de autoplay).
+  // NO se reproduce si el easter egg de inicio está activo.
+  // (Si quieres que suene también con easter egg, borra el `if` de abajo.)
+  const introAudio = new Audio("sound/bienvenida1.mp3"); // ← tu archivo aquí
+  introAudio.preload = "auto";
+  introAudio.volume = 0.8;
 
   const probabilidadJuego = Math.floor(Math.random() * 1000) + 1;
   let easterEggJuegoActivo = false;
@@ -28,6 +38,9 @@ window.addEventListener("load", () => {
 
   // === REFERENCIAS DEL DOM ===
   const scoreEl = document.getElementById("score");
+  const hupibotsEl = document.getElementById("hupibots");
+  const hupibotsContainer = document.getElementById("hupibots-container");
+
   const clickBtn = document.getElementById("clickBtn");
   const btnImage = document.getElementById("btnImage");
   const squeakSound = document.getElementById("dogToySound");
@@ -46,9 +59,42 @@ window.addEventListener("load", () => {
   const invGrid = document.getElementById("inv-grid");
 
   const hammerImage = document.getElementById("hammerImage");
-
   const hammerHitSound = document.getElementById("hammerHitSound");
   const levelUpSound = document.getElementById("levelUpSound");
+
+  const bgMusic = new Audio();
+  bgMusic.loop = true;
+  bgMusic.volume = 0.5;
+
+  // ==========================================
+  // 🔊 CONFIGURACIÓN DE AUDIOS
+  // ==========================================
+  const dialogos = [
+    "sound/dialogos/chillido1.m4a",
+    "sound/dialogos/chillido2.m4a",
+    "sound/dialogos/chillido3.m4a",
+    "sound/dialogos/chillido4.m4a",
+    "sound/dialogos/chillido5.m4a",
+    "sound/dialogos/chillido6.m4a",
+    "sound/dialogos/chillido7.m4a",
+    "sound/dialogos/datointeresante1.m4a",
+    "sound/dialogos/doom.mp3",
+  ];
+  const dialogosAudioPool = dialogos.map((src) => new Audio(src));
+  dialogosAudioPool.forEach((audio) => (audio.volume = 0.8));
+
+  const audiosReinicioPool = [
+    new Audio("sound/dialogos/grito1.m4a"),
+    new Audio("sound/dialogos/grito2.m4a"),
+    new Audio("sound/dialogos/grito3.m4a"),
+    new Audio("sound/dialogos/grito4.m4a"),
+    new Audio("sound/dialogos/grito5.m4a"),
+    new Audio("sound/dialogos/grito6.m4a"),
+  ];
+  audiosReinicioPool.forEach((audio) => (audio.volume = 1.0));
+
+  const notificacionSound = new Audio("sound/notificacion1.mp3");
+  notificacionSound.volume = 0.7;
 
   const elementosUI = [
     document.querySelector("h1"),
@@ -73,6 +119,41 @@ window.addEventListener("load", () => {
     metalSound.currentTime = 0;
     metalSound.playbackRate = 0.7;
     metalSound.play().catch((e) => console.log("Audio bloqueado"));
+  }
+
+  function playRandomDialog() {
+    const audio =
+      dialogosAudioPool[Math.floor(Math.random() * dialogosAudioPool.length)];
+    audio.currentTime = 0;
+    audio
+      .play()
+      .catch((e) => console.log("Audio de diálogo bloqueado o no encontrado"));
+  }
+
+  function playRandomReinicioSound() {
+    const audio =
+      audiosReinicioPool[Math.floor(Math.random() * audiosReinicioPool.length)];
+    audio.currentTime = 0;
+    audio
+      .play()
+      .catch((e) => console.log("Audio de reinicio bloqueado o no encontrado"));
+  }
+
+  function updateBackgroundMusic(nivel) {
+    if (nivel >= 5) {
+      let musicIndex = Math.min(nivel, 10);
+      let musicPath = `sound/music/music${musicIndex - 4}.m4a`;
+
+      if (!bgMusic.src.includes(musicPath)) {
+        bgMusic.src = musicPath;
+        bgMusic
+          .play()
+          .catch((e) => console.log("Música no encontrada o bloqueada"));
+      }
+    } else {
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+    }
   }
 
   function triggerGlitch() {
@@ -119,6 +200,7 @@ window.addEventListener("load", () => {
     studyTotal = 0,
     clicsRapidosTotales = 0;
 
+  let hupibotsCount = parseInt(localStorage.getItem("lux_hupibots")) || 0;
   let unlockedLevel = 0;
   let isLocked = false;
   let inventoryItems = [];
@@ -139,6 +221,7 @@ window.addEventListener("load", () => {
     relaxing: "img/minihupibot/relaxing.png",
     study: "img/minihupibot/study.png",
     rock: "img/minihupibot/rock.png",
+    jumping: "img/minihupibot/jumping.png",
   };
   Object.values(imagenesMini).forEach((ruta) => {
     const img = new Image();
@@ -201,6 +284,7 @@ window.addEventListener("load", () => {
         levelUpSound.currentTime = 0;
         levelUpSound.play().catch((e) => {});
         triggerGlitch();
+        updateBackgroundMusic(5);
       } else {
         if (item.equipped) {
           item.equipped = false;
@@ -439,13 +523,33 @@ window.addEventListener("load", () => {
   function cambiarEstadoMiniHupi(estado, duracion = 0) {
     if (sideImage.src.includes(estado)) return;
     sideImage.src = imagenesMini[estado];
-    sideImage.classList.toggle("estado-relaxing", estado === "relaxing");
+
+    // Limpiamos las clases de estado anteriores
+    sideImage.classList.remove("estado-relaxing", "estado-jumping");
+
+    // Asignamos la nueva
+    if (estado === "relaxing") {
+      sideImage.classList.add("estado-relaxing");
+    } else if (estado === "jumping") {
+      sideImage.classList.add("estado-jumping");
+    }
+
     clearTimeout(temporizadorEstadoMini);
     if (duracion > 0)
       temporizadorEstadoMini = setTimeout(
         () => cambiarEstadoMiniHupi("idle"),
         duracion,
       );
+  }
+
+  function showItemNotification() {
+    notificacionSound.currentTime = 0;
+    notificacionSound
+      .play()
+      .catch((e) => console.log("Audio de notificación no encontrado"));
+
+    // Duración reducida a 2000 ms (2 segundos)
+    cambiarEstadoMiniHupi("jumping", 2000);
   }
 
   function resetearInactividad() {
@@ -513,6 +617,27 @@ window.addEventListener("load", () => {
   procesarSesionAnterior();
 
   btnEmpezar.addEventListener("click", () => {
+    // ==========================================
+    // 🎵 AUDIO DE BIENVENIDA AL PRESIONAR "COMENZAR"
+    // ==========================================
+    // Al hacer clic en el botón, es un gesto de usuario real,
+    // así que el navegador deja sonar el audio sin problema.
+    // (Excluido en el easter egg del inicio.)
+    if (probabilidadInicio !== 1) {
+      try {
+        introAudio.currentTime = 0;
+        introAudio.play().catch((err) => {
+          console.warn(
+            "🎵 Audio de bienvenida bloqueado:",
+            err.name,
+            err.message,
+          );
+        });
+      } catch (err) {
+        console.warn("🎵 Error al reproducir bienvenida:", err);
+      }
+    }
+
     playerName =
       inputNombre.value.trim() === ""
         ? "Anónimo"
@@ -531,6 +656,9 @@ window.addEventListener("load", () => {
     isSwinging = false;
     nextPrestigeThreshold = 8000;
     isAskingPrestige = false;
+
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
 
     renderInventory();
     actualizarUI();
@@ -558,6 +686,7 @@ window.addEventListener("load", () => {
       hammerActive = false;
       hammerImage.style.display = "none";
       clickPower = 1;
+      updateBackgroundMusic(11);
     } else if (codigo === "reset") {
       state.clicks = 0;
       unlockedLevel = 0;
@@ -573,6 +702,9 @@ window.addEventListener("load", () => {
       isAskingPrestige = false;
       hammerActive = false;
       hammerImage.style.display = "none";
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+
       misiones.forEach((m) => {
         m.completada = false;
         m.actual = 0;
@@ -671,6 +803,7 @@ window.addEventListener("load", () => {
         });
       }
 
+      updateBackgroundMusic(unlockedLevel);
       renderInventory();
     } else {
       alert("Código no válido.");
@@ -685,47 +818,37 @@ window.addEventListener("load", () => {
   }
 
   // ==========================================
-  // 🛠️ NUEVOS MÉTODOS OCULTOS PARA EL MODO DESARROLLADOR
+  // 🛠️ MÉTODOS OCULTOS
   // ==========================================
-
-  // 1. Atajo de teclado: Ctrl + Shift + C (Windows/Linux) o Cmd + Shift + C (Mac)
   window.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "c") {
-      e.preventDefault(); // Evita que se abra la consola del navegador
+      e.preventDefault();
       abrirMenuTrampas();
     }
-
-    // Mantener el atajo de la B para la mochila
     if (e.key.toLowerCase() === "b" || e.key.toLowerCase() === "i") {
       if (!hammerActive) inventoryPanel.classList.toggle("show");
     }
   });
 
-  // 2. Mantener presionado el título "Acaricia a Hupibot" durante 3 segundos
   let pressTimer;
-  const tiempoPresionado = 3000; // 3 segundos
+  const tiempoPresionado = 3000;
 
   tituloH1.addEventListener("pointerdown", (e) => {
     if (!juegoIniciado) return;
-
-    // Cambio visual sutil (opcional) para saber que está cargando
     tituloH1.style.color = "#ff3333";
-
     pressTimer = setTimeout(() => {
       abrirMenuTrampas();
-      tituloH1.style.color = "#ffffff"; // Restaurar color
+      tituloH1.style.color = "#ffffff";
     }, tiempoPresionado);
   });
 
   const cancelarPresion = () => {
     clearTimeout(pressTimer);
-    tituloH1.style.color = "#ffffff"; // Restaurar color
+    tituloH1.style.color = "#ffffff";
   };
 
   tituloH1.addEventListener("pointerup", cancelarPresion);
   tituloH1.addEventListener("pointerleave", cancelarPresion);
-
-  // ==========================================
 
   const niveles = [
     {
@@ -800,6 +923,13 @@ window.addEventListener("load", () => {
 
   function actualizarUI() {
     scoreEl.textContent = Math.floor(state.clicks);
+    hupibotsEl.textContent = hupibotsCount;
+
+    if (hupibotsCount > 0) {
+      hupibotsContainer.style.display = "block";
+    } else {
+      hupibotsContainer.style.display = "none";
+    }
 
     let nivelVisualIndex = unlockedLevel;
     if (nivelVisualIndex > 11) nivelVisualIndex = 11;
@@ -881,13 +1011,19 @@ window.addEventListener("load", () => {
       setTimeout(() => {
         if (
           confirm(
-            `¡Has alcanzado los ${nextPrestigeThreshold} clics!\n\n¿Quieres volver al Nivel 1 perdiendo tus objetos pero CONSERVANDO tus Pat-pats acumulados?`,
+            `¡Has alcanzado los ${nextPrestigeThreshold} clics!\n\n¿Quieres reemplazar a la Hupibot descompuesta?`,
           )
         ) {
+          playRandomReinicioSound();
+
+          hupibotsCount++;
+          localStorage.setItem("lux_hupibots", hupibotsCount);
+
+          state.clicks = 0;
           unlockedLevel = 0;
-          targetClicks = state.clicks + 250;
-          levelStartClicks = state.clicks;
-          nextPrestigeThreshold += 8000;
+          targetClicks = 250;
+          levelStartClicks = 0;
+          nextPrestigeThreshold = 8000;
 
           inventoryItems = [];
           hammerActive = false;
@@ -902,6 +1038,7 @@ window.addEventListener("load", () => {
           actualizarUI();
           actualizarMisiones();
           btnImage.src = niveles[0].normal;
+          updateBackgroundMusic(0);
         }
         isAskingPrestige = false;
       }, 100);
@@ -966,6 +1103,7 @@ window.addEventListener("load", () => {
           equipped: false,
         });
         renderInventory();
+        showItemNotification();
       } else if (nextLevel === 3) {
         unlockedLevel = 3;
         inventoryItems.push({
@@ -975,6 +1113,7 @@ window.addEventListener("load", () => {
           equipped: false,
         });
         renderInventory();
+        showItemNotification();
       } else if (nextLevel === 5) {
         isLocked = true;
         inventoryItems.push({
@@ -984,6 +1123,7 @@ window.addEventListener("load", () => {
           equipped: false,
         });
         renderInventory();
+        showItemNotification();
         break;
       } else {
         unlockedLevel = nextLevel;
@@ -993,6 +1133,8 @@ window.addEventListener("load", () => {
       let increment = unlockedLevel < 5 ? 250 : 100;
       targetClicks = state.clicks + increment;
       levelStartClicks = state.clicks;
+
+      updateBackgroundMusic(unlockedLevel);
     }
 
     if (leveledUp) {
@@ -1085,7 +1227,8 @@ window.addEventListener("load", () => {
       clicsRapidos = 0;
     } else if (
       !sideImage.src.includes("study") &&
-      !sideImage.src.includes("rock")
+      !sideImage.src.includes("rock") &&
+      !sideImage.src.includes("jumping")
     ) {
       cambiarEstadoMiniHupi("idle");
     }
@@ -1107,9 +1250,15 @@ window.addEventListener("load", () => {
     if (nivelVisualIndex > 11) nivelVisualIndex = 11;
     let nivelVisualActual = niveles[nivelVisualIndex];
 
-    if (state.clicks > 0) {
-      squeakSound.currentTime = 0;
-      squeakSound.play().catch((error) => {});
+    // SONIDO DEL JUGUETE EN CADA CLIC
+    squeakSound.currentTime = 0;
+    squeakSound.play().catch((e) => console.log("Audio de juguete bloqueado"));
+
+    // SONIDO ALEATORIO (1 entre 40)
+    if (unlockedLevel < 5) {
+      if (Math.floor(Math.random() * 40) === 0) {
+        playRandomDialog();
+      }
     }
 
     if (easterEggJuegoActivo) btnImage.src = imgEasterPresionada;
