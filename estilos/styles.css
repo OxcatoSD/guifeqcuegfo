@@ -317,7 +317,8 @@ h1 {
 }
 
 #btnToggleLeaderboard,
-#btnToggleInventory {
+#btnToggleInventory,
+#btnToggleCredits {
     position: fixed;
     right: 15px;
     background: rgba(0, 0, 0, 0.8);
@@ -340,8 +341,15 @@ h1 {
     top: 150px;
 }
 
+#btnToggleCredits {
+    left: 15px;
+    right: auto;
+    bottom: 15px;
+}
+
 .leaderboard,
-.inventory {
+.inventory,
+.credits {
     position: fixed;
     right: 15px;
     background: rgba(0, 0, 0, 0.9);
@@ -443,6 +451,44 @@ h1 {
     display: flex;
 }
 
+/* === CRÉDITOS === */
+.credits {
+    left: 15px;
+    right: auto;
+    bottom: 60px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 200px;
+}
+
+.credits.show {
+    display: flex;
+}
+
+.credits h3 {
+    font-size: 0.6rem;
+    color: #00ffff;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.credit-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.5rem;
+    line-height: 1.6;
+}
+
+.credit-role {
+    color: #ffcc00;
+}
+
+.credit-name {
+    color: #00ffff;
+}
+
 #mission-bar {
     position: fixed;
     bottom: 20px;
@@ -522,6 +568,12 @@ h1 {
         left: auto;
     }
 
+    /* El botón de créditos va por encima de la barra de misiones en móvil */
+    #btnToggleCredits {
+        bottom: 95px;
+        left: 15px;
+    }
+
     .leaderboard,
     .inventory {
         display: none;
@@ -555,6 +607,18 @@ h1 {
         right: 15px;
         width: auto;
         left: auto;
+    }
+
+    .credits {
+        left: 15px;
+        right: auto;
+        bottom: 140px;
+        min-width: 170px;
+        padding: 8px 12px;
+    }
+
+    .credit-item {
+        font-size: 0.45rem;
     }
 
     h1 {
