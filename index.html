@@ -24,16 +24,18 @@
     <div class="score-container">
         <span class="score-label">Pat-pats:</span>
         <div class="score" id="score">0</div>
-        
+
         <!-- CONTENEDOR DE HUPIBOTS OCULTO POR DEFECTO -->
         <div id="hupibots-container" style="display: none; margin-top: 15px;">
             <span class="score-label" style="color: #ff00ff; text-shadow: 0 0 5px #ff00ff;">Hupibots:</span>
-            <div class="score" id="hupibots" style="font-size: 1.2rem; color: #ff00ff; text-shadow: 0 0 10px #ff00ff;">0</div>
+            <div class="score" id="hupibots" style="font-size: 1.2rem; color: #ff00ff; text-shadow: 0 0 10px #ff00ff;">0
+            </div>
         </div>
     </div>
 
     <button id="btnToggleLeaderboard">🏆</button>
     <button id="btnToggleInventory">🎒</button>
+    <button id="btnToggleCredits">📜</button>
 
     <div class="leaderboard" id="leaderboardPanel">
         <h3>🏆 Récords</h3>
@@ -45,6 +47,30 @@
         <div class="inv-grid" id="inv-grid"></div>
     </div>
 
+    <div class="credits" id="creditsPanel">
+        <h3>✨ Créditos ✨</h3>
+        <div class="credit-item">
+            <span class="credit-role">🎨 Arte visual y personajes</span>
+            <span class="credit-name">Perox Luxury</span>
+        </div>
+        <div class="credit-item">
+            <span class="credit-role">🎵 Músico</span>
+            <span class="credit-name">Maxine Newender</span>
+        </div>
+        <div class="credit-item">
+            <span class="credit-role">🎵 Efectos de sonido</span>
+            <span class="credit-name">Deka</span>
+        </div>
+        <div class="credit-item">
+            <span class="credit-role">🎤 Actriz de voz</span>
+            <span class="credit-name">Alex_Vascue</span>
+        </div>
+        <div class="credit-item">
+            <span class="credit-role">💻 Desarrollador</span>
+            <span class="credit-name">Oxcato-Esderly</span>
+        </div>
+    </div>
+
     <h1>Acaricia a Hupibot</h1>
 
     <div class="click-area">
@@ -54,7 +80,8 @@
 
         <img src="img/martillo.png" id="hammerImage" style="display: none;">
 
-        <img src="img/minihupibot/idle.png" id="sideImage" class="side-animation" style="display: none;" alt="Mini Hupibot">
+        <img src="img/minihupibot/idle.png" id="sideImage" class="side-animation" style="display: none;"
+            alt="Mini Hupibot">
     </div>
 
     <div id="mission-bar">
@@ -70,4 +97,5 @@
     <script src="script/script.js"></script>
 
 </body>
+
 </html>
