@@ -33,6 +33,29 @@ window.addEventListener("load", () => {
   equipSound.preload = "auto";
   equipSound.volume = 0.8;
 
+  // ==========================================
+  // 🔨 SONIDOS DEL MARTILLO AL GOLPEAR A MINIHUPI
+  // ==========================================
+  // ⚠️ Si tus archivos son .m4a o .wav, cambia el .mp3 de aquí abajo:
+  const martilloSonidosPool = [
+    new Audio("sound/dialogos/medio_turbio/turbio1.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio2.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio3.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio4.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio5.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio6.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio7.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio8.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio9.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio10.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio11.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio12.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio13.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio14.m4a"),
+    new Audio("sound/dialogos/medio_turbio/turbio15.m4a"),
+  ];
+  martilloSonidosPool.forEach((audio) => (audio.volume = 0.8));
+
   const probabilidadJuego = Math.floor(Math.random() * 1000) + 1;
   let easterEggJuegoActivo = false;
   let clicsEasterEgg = 0;
@@ -62,6 +85,10 @@ window.addEventListener("load", () => {
   const inventoryPanel = document.getElementById("inventoryPanel");
   const invGrid = document.getElementById("inv-grid");
 
+  // ✨ CRÉDITOS: referencias DOM
+  const btnToggleCredits = document.getElementById("btnToggleCredits");
+  const creditsPanel = document.getElementById("creditsPanel");
+
   const hammerImage = document.getElementById("hammerImage");
   const hammerHitSound = document.getElementById("hammerHitSound");
   const levelUpSound = document.getElementById("levelUpSound");
@@ -82,6 +109,11 @@ window.addEventListener("load", () => {
     "sound/dialogos/chillido6.m4a",
     "sound/dialogos/chillido7.m4a",
     "sound/dialogos/datointeresante1.m4a",
+    "sound/dialogos/datointeresante2.m4a",
+    "sound/dialogos/datointeresante3.m4a",
+    "sound/dialogos/datointeresante4.m4a",
+    "sound/dialogos/datointeresante5.m4a",
+    "sound/dialogos/datointeresante6.m4a",
     "sound/dialogos/doom.mp3",
   ];
   const dialogosAudioPool = dialogos.map((src) => new Audio(src));
@@ -132,6 +164,18 @@ window.addEventListener("load", () => {
       .catch((e) => console.log("Audio de equipar no encontrado"));
   }
 
+  // 🔨 Reproduce un sonido aleatorio del pool del martillo
+  function playRandomMartilloSound() {
+    const audio =
+      martilloSonidosPool[
+        Math.floor(Math.random() * martilloSonidosPool.length)
+      ];
+    audio.currentTime = 0;
+    audio
+      .play()
+      .catch((e) => console.log("Audio de martillo bloqueado o no encontrado"));
+  }
+
   function playRandomDialog() {
     const audio =
       dialogosAudioPool[Math.floor(Math.random() * dialogosAudioPool.length)];
@@ -163,7 +207,6 @@ window.addEventListener("load", () => {
       const parte = nivel - 4;
       const musicPath = `sound/backsound/background_musicparte${parte}.mp3`;
 
-      // El nivel 8 no tiene loop; el resto sí.
       bgMusic.loop = nivel !== 8;
 
       if (!bgMusic.src.includes(musicPath)) {
@@ -177,7 +220,7 @@ window.addEventListener("load", () => {
     } else {
       bgMusic.pause();
       bgMusic.currentTime = 0;
-      bgMusic.loop = true; // restaurar el loop por defecto
+      bgMusic.loop = true;
     }
   }
 
@@ -241,12 +284,14 @@ window.addEventListener("load", () => {
   let nextPrestigeThreshold = 8000;
   let isAskingPrestige = false;
 
+  // 🔨 Añadimos "delado" al objeto de imágenes
   const imagenesMini = {
     idle: "img/minihupibot/idle.png",
     relaxing: "img/minihupibot/relaxing.png",
     study: "img/minihupibot/study.png",
     rock: "img/minihupibot/rock.png",
     jumping: "img/minihupibot/jumping.png",
+    delado: "img/minihupibot/delado.png",
   };
   Object.values(imagenesMini).forEach((ruta) => {
     const img = new Image();
@@ -262,6 +307,11 @@ window.addEventListener("load", () => {
     if (hammerActive) return;
     inventoryPanel.classList.toggle("show");
     if (window.innerWidth <= 600) leaderboardPanel.classList.remove("show");
+  });
+
+  // ✨ CRÉDITOS: toggle del panel
+  btnToggleCredits.addEventListener("click", () => {
+    creditsPanel.classList.toggle("show");
   });
 
   function renderInventory() {
@@ -289,7 +339,6 @@ window.addEventListener("load", () => {
 
     if (item.type === "hammer") {
       if (isLocked) {
-        // 🔓 Romper el bloqueo: momento especial → levelUpSound
         isLocked = false;
         unlockedLevel = 5;
 
@@ -331,7 +380,6 @@ window.addEventListener("load", () => {
 
           inventoryPanel.classList.remove("show");
         }
-        // 🎧 Sonido al equipar/desequipar el martillo
         playEquipSound();
       }
       renderInventory();
@@ -356,7 +404,6 @@ window.addEventListener("load", () => {
         hammerCharge = 0;
         hammerImage.style.transform = `translate(0px, 0px) rotate(15deg)`;
       }
-      // 🎧 Sonido al equipar/desequipar guante o matamoscas
       playEquipSound();
     }
 
@@ -553,10 +600,8 @@ window.addEventListener("load", () => {
     if (sideImage.src.includes(estado)) return;
     sideImage.src = imagenesMini[estado];
 
-    // Limpiamos las clases de estado anteriores
     sideImage.classList.remove("estado-relaxing", "estado-jumping");
 
-    // Asignamos la nueva
     if (estado === "relaxing") {
       sideImage.classList.add("estado-relaxing");
     } else if (estado === "jumping") {
@@ -577,7 +622,6 @@ window.addEventListener("load", () => {
       .play()
       .catch((e) => console.log("Audio de notificación no encontrado"));
 
-    // Duración reducida a 2000 ms (2 segundos)
     cambiarEstadoMiniHupi("jumping", 2000);
   }
 
@@ -588,14 +632,23 @@ window.addEventListener("load", () => {
     }, 120000);
   }
 
+  // 🔨 Handler de MiniHupi:
+  // - Si NO hay martillo → rock (como siempre)
+  // - Si SÍ hay martillo → imagen "delado" + sonido aleatorio del pool
   sideImage.addEventListener("click", (e) => {
     e.preventDefault();
     if (!juegoIniciado) return;
-    cambiarEstadoMiniHupi("rock", 6000);
-    rockSound.currentTime = 0;
-    rockSound.play().catch((err) => {});
-    rockTotal++;
-    actualizarMisiones();
+
+    if (hammerActive) {
+      cambiarEstadoMiniHupi("delado", 6000);
+      playRandomMartilloSound();
+    } else {
+      cambiarEstadoMiniHupi("rock", 6000);
+      rockSound.currentTime = 0;
+      rockSound.play().catch((err) => {});
+      rockTotal++;
+      actualizarMisiones();
+    }
     resetearInactividad();
   });
 
@@ -646,9 +699,6 @@ window.addEventListener("load", () => {
   procesarSesionAnterior();
 
   btnEmpezar.addEventListener("click", () => {
-    // ==========================================
-    // 🎵 AUDIO DE BIENVENIDA AL PRESIONAR "COMENZAR"
-    // ==========================================
     if (probabilidadInicio !== 1) {
       try {
         introAudio.currentTime = 0;
@@ -843,9 +893,6 @@ window.addEventListener("load", () => {
     btnImage.src = niveles[Math.min(unlockedLevel, 11)].normal;
   }
 
-  // ==========================================
-  // 🛠️ MÉTODOS OCULTOS
-  // ==========================================
   window.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "c") {
       e.preventDefault();
@@ -1254,6 +1301,7 @@ window.addEventListener("load", () => {
     } else if (
       !sideImage.src.includes("study") &&
       !sideImage.src.includes("rock") &&
+      !sideImage.src.includes("delado") &&
       !sideImage.src.includes("jumping")
     ) {
       cambiarEstadoMiniHupi("idle");
@@ -1276,11 +1324,9 @@ window.addEventListener("load", () => {
     if (nivelVisualIndex > 11) nivelVisualIndex = 11;
     let nivelVisualActual = niveles[nivelVisualIndex];
 
-    // SONIDO DEL JUGUETE EN CADA CLIC
     squeakSound.currentTime = 0;
     squeakSound.play().catch((e) => console.log("Audio de juguete bloqueado"));
 
-    // SONIDO ALEATORIO (1 entre 40)
     if (unlockedLevel < 5) {
       if (Math.floor(Math.random() * 40) === 0) {
         playRandomDialog();
@@ -1323,6 +1369,5 @@ window.addEventListener("load", () => {
     else btnImage.src = nivelVisualActual.normal;
   });
 
-  // === INICIAR ===
   actualizarUI();
 });
