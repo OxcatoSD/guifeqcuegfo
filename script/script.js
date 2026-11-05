@@ -1,29 +1,65 @@
 window.addEventListener("load", () => {
   // ==========================================
-  // 🥚 EASTER EGGS
+  // 🥚 EASTER EGG (UNA SOLA TIRADA PARA AMBOS)
   // ==========================================
-  const probabilidadInicio = Math.floor(Math.random() * 1000) + 1;
-  if (probabilidadInicio === 1) {
-    const pantallaInicio = document.getElementById("pantalla-inicio");
-    const tituloInicio = pantallaInicio.querySelector("h2");
-    const textoInicio = pantallaInicio.querySelector("p");
-    tituloInicio.textContent = "¿QUIÉN ERES?";
-    tituloInicio.style.color = "#ff0000";
-    tituloInicio.style.textShadow = "0 0 10px red, 0 0 20px darkred";
-    pantallaInicio.style.backgroundImage = "url('img/background/IMG-20261019-WA0007.jpg')";
-    pantallaInicio.style.backgroundSize = "cover";
-    pantallaInicio.style.backgroundPosition = "center";
-    pantallaInicio.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-    textoInicio.textContent = "Escribe tu nombre si te atreves...";
-    textoInicio.style.color = "#ff3333";
-  }
+  // Probabilidad de 1 entre 20 (5%). Si sale 1, es Easter Egg para todo.
+  const probabilidadUnica = Math.floor(Math.random() * 15) + 1;
+  const easterEggInicioActivo = probabilidadUnica === 1;
+
+  // El juego usa EXACTAMENTE el mismo resultado que la pantalla del nombre
+  let easterEggJuegoActivo = easterEggInicioActivo;
 
   // ==========================================
-  // 🎵 AUDIO DE BIENVENIDA
+  // 🎵 AUDIO DE BIENVENIDA Y AMBIENTE
   // ==========================================
   const introAudio = new Audio("sound/bienvenida1.mp3");
   introAudio.preload = "auto";
   introAudio.volume = 0.8;
+
+  // 🎭 Audio de ambiente (para el Easter Egg)
+  const ambienteAudio = new Audio("sound/ambiente.mp3");
+  ambienteAudio.preload = "auto";
+  ambienteAudio.loop = true;
+  ambienteAudio.volume = 0.6;
+
+  if (easterEggInicioActivo) {
+    const pantallaInicio = document.getElementById("pantalla-inicio");
+    const tituloInicio = pantallaInicio.querySelector("h2");
+    const textoInicio = pantallaInicio.querySelector("p");
+    const inputNombreInicio = document.getElementById("input-nombre");
+    const btnEmpezarInicio = document.getElementById("btn-empezar");
+
+    pantallaInicio.style.backgroundImage =
+      "url('img/background/IMG-20261019-WA0007.jpg')";
+    pantallaInicio.style.backgroundSize = "cover";
+    pantallaInicio.style.backgroundPosition = "center";
+    pantallaInicio.style.backgroundColor = "rgba(0, 0, 0, 0.85)";
+
+    tituloInicio.textContent = "¿QUIÉN ERES?";
+    tituloInicio.style.color = "#ff0000";
+    tituloInicio.style.textShadow = "0 0 10px red, 0 0 20px darkred";
+
+    textoInicio.textContent = "Escribe tu nombre si te atreves...";
+    textoInicio.style.color = "#ff3333";
+
+    inputNombreInicio.style.borderColor = "#ff0000";
+    inputNombreInicio.style.color = "#ff3333";
+    inputNombreInicio.style.boxShadow = "0 0 15px rgba(255, 0, 0, 0.5)";
+    inputNombreInicio.placeholder = "Tu nombre aquí...";
+
+    btnEmpezarInicio.style.backgroundColor = "#ff0000";
+    btnEmpezarInicio.style.color = "#000";
+    btnEmpezarInicio.style.boxShadow = "0 0 20px rgba(255, 0, 0, 0.8)";
+    btnEmpezarInicio.textContent = "ENTRAR";
+
+    const playAmbienteStart = () => {
+      ambienteAudio.play().catch(() => {});
+      document.removeEventListener("pointerdown", playAmbienteStart);
+      document.removeEventListener("keydown", playAmbienteStart);
+    };
+    document.addEventListener("pointerdown", playAmbienteStart);
+    document.addEventListener("keydown", playAmbienteStart);
+  }
 
   // ==========================================
   // 🎧 AUDIO DE EQUIPAR/DESEQUIPAR OBJETO
@@ -54,12 +90,9 @@ window.addEventListener("load", () => {
   ];
   martilloSonidosPool.forEach((audio) => (audio.volume = 0.8));
 
-  const probabilidadJuego = Math.floor(Math.random() * 1000) + 1;
-  let easterEggJuegoActivo = false;
   let clicsEasterEgg = 0;
   const imgEasterNormal = "img/hupiframes/easteregg1.jpg";
   const imgEasterPresionada = "img/hupiframes/easteregg2.jpg";
-  if (probabilidadJuego === 1) easterEggJuegoActivo = true;
 
   // === REFERENCIAS DEL DOM ===
   const scoreEl = document.getElementById("score");
@@ -154,35 +187,58 @@ window.addEventListener("load", () => {
   levelUpSound.volume = 1.0;
 
   function playThickMetalSound() {
+    if (easterEggJuegoActivo) return;
     metalSound.currentTime = 0;
     metalSound.playbackRate = 0.7;
     metalSound.play().catch((e) => console.log("Audio bloqueado"));
   }
 
   function playEquipSound() {
+    if (easterEggJuegoActivo) return;
     equipSound.currentTime = 0;
-    equipSound.play().catch((e) => console.log("Audio de equipar no encontrado"));
+    equipSound
+      .play()
+      .catch((e) => console.log("Audio de equipar no encontrado"));
   }
 
   function playRandomMartilloSound() {
-    const audio = martilloSonidosPool[Math.floor(Math.random() * martilloSonidosPool.length)];
+    if (easterEggJuegoActivo) return;
+    const audio =
+      martilloSonidosPool[
+        Math.floor(Math.random() * martilloSonidosPool.length)
+      ];
     audio.currentTime = 0;
-    audio.play().catch((e) => console.log("Audio de martillo bloqueado o no encontrado"));
+    audio
+      .play()
+      .catch((e) => console.log("Audio de martillo bloqueado o no encontrado"));
   }
 
   function playRandomDialog() {
-    const audio = dialogosAudioPool[Math.floor(Math.random() * dialogosAudioPool.length)];
+    if (easterEggJuegoActivo) return;
+    const audio =
+      dialogosAudioPool[Math.floor(Math.random() * dialogosAudioPool.length)];
     audio.currentTime = 0;
-    audio.play().catch((e) => console.log("Audio de diálogo bloqueado o no encontrado"));
+    audio
+      .play()
+      .catch((e) => console.log("Audio de diálogo bloqueado o no encontrado"));
   }
 
   function playRandomReinicioSound() {
-    const audio = audiosReinicioPool[Math.floor(Math.random() * audiosReinicioPool.length)];
+    if (easterEggJuegoActivo) return;
+    const audio =
+      audiosReinicioPool[Math.floor(Math.random() * audiosReinicioPool.length)];
     audio.currentTime = 0;
-    audio.play().catch((e) => console.log("Audio de reinicio bloqueado o no encontrado"));
+    audio
+      .play()
+      .catch((e) => console.log("Audio de reinicio bloqueado o no encontrado"));
   }
 
   function updateBackgroundMusic(nivel) {
+    if (easterEggJuegoActivo) {
+      bgMusic.pause();
+      return;
+    }
+
     if (nivel >= 5) {
       const parte = nivel - 4;
       const musicPath = `sound/backsound/background_musicparte${parte}.mp3`;
@@ -191,7 +247,11 @@ window.addEventListener("load", () => {
 
       if (!bgMusic.src.includes(musicPath)) {
         bgMusic.src = musicPath;
-        bgMusic.play().catch((e) => console.log(`🎵 Música no encontrada o bloqueada: ${musicPath}`, e));
+        bgMusic
+          .play()
+          .catch((e) =>
+            console.log(`🎵 Música no encontrada o bloqueada: ${musicPath}`, e),
+          );
       }
     } else {
       bgMusic.pause();
@@ -240,7 +300,9 @@ window.addEventListener("load", () => {
   let ultimoClicTiempo = Date.now();
   let clicsRapidos = 0;
   let temporizadorEstadoMini;
-  let rockTotal = 0, studyTotal = 0, clicsRapidosTotales = 0;
+  let rockTotal = 0,
+    studyTotal = 0,
+    clicsRapidosTotales = 0;
 
   let hupibotsCount = parseInt(localStorage.getItem("lux_hupibots")) || 0;
   let unlockedLevel = 0;
@@ -255,11 +317,11 @@ window.addEventListener("load", () => {
   let hammerFallTimer;
   let isSwinging = false;
 
-  let nextPrestigeThreshold = 8000;
+  let nextPrestigeThreshold = 4000;
   let isAskingPrestige = false;
 
   // 🎭 VARIABLES DEL DIARIO
-  let diarioTarget = Math.floor(Math.random() * 401) + 200; // Entre 200 y 600
+  let diarioTarget = Math.floor(Math.random() * 401) + 200;
   let diarioMostrado = false;
   let diarioAnimacionId = null;
   let diarioX = 0;
@@ -332,8 +394,11 @@ window.addEventListener("load", () => {
         clickPower = 1;
         inventoryPanel.classList.remove("show");
 
-        levelUpSound.currentTime = 0;
-        levelUpSound.play().catch((e) => {});
+        if (!easterEggJuegoActivo) {
+          levelUpSound.currentTime = 0;
+          levelUpSound.play().catch((e) => {});
+        }
+
         triggerGlitch();
         updateBackgroundMusic(5);
       } else {
@@ -389,18 +454,114 @@ window.addEventListener("load", () => {
   }
 
   let misiones = [
-    { id: "m_fast10", texto: "Da 10 clics rápidos", meta: 10, actual: 0, completada: false, nivelRequerido: 0, requiereHupi: false },
-    { id: "m_rock1", texto: "Haz rockear a Hupi", meta: 1, actual: 0, completada: false, nivelRequerido: 0, requiereHupi: true },
-    { id: "m_study1", texto: "Haz estudiar a Hupi", meta: 1, actual: 0, completada: false, nivelRequerido: 2, requiereHupi: true },
-    { id: "m_fast50", texto: "Da 50 clics rápidos", meta: 50, actual: 0, completada: false, nivelRequerido: 2, requiereHupi: false },
-    { id: "m_rock3", texto: "Haz rockear a Hupi 3 veces", meta: 3, actual: 0, completada: false, nivelRequerido: 3, requiereHupi: true },
-    { id: "m_study3", texto: "Haz estudiar a Hupi 3 veces", meta: 3, actual: 0, completada: false, nivelRequerido: 5, requiereHupi: true },
-    { id: "m_fast150", texto: "Da 150 clics rápidos", meta: 150, actual: 0, completada: false, nivelRequerido: 5, requiereHupi: false },
-    { id: "m_rock6", texto: "Haz rockear a Hupi 6 veces", meta: 6, actual: 0, completada: false, nivelRequerido: 6, requiereHupi: true },
-    { id: "m_study5", texto: "Haz estudiar a Hupi 5 veces", meta: 5, actual: 0, completada: false, nivelRequerido: 8, requiereHupi: true },
-    { id: "m_fast300", texto: "Da 300 clics rápidos", meta: 300, actual: 0, completada: false, nivelRequerido: 8, requiereHupi: false },
-    { id: "m_rock10", texto: "Haz rockear a Hupi 10 veces", meta: 10, actual: 0, completada: false, nivelRequerido: 9, requiereHupi: true },
-    { id: "m_max", texto: "Alcanza el Nivel Máximo", meta: 2000, actual: 0, completada: false, nivelRequerido: 11, requiereHupi: false },
+    {
+      id: "m_fast10",
+      texto: "Da 10 clics rápidos",
+      meta: 10,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 0,
+      requiereHupi: false,
+    },
+    {
+      id: "m_rock1",
+      texto: "Haz rockear a Hupi",
+      meta: 1,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 0,
+      requiereHupi: true,
+    },
+    {
+      id: "m_study1",
+      texto: "Haz estudiar a Hupi",
+      meta: 1,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 2,
+      requiereHupi: true,
+    },
+    {
+      id: "m_fast50",
+      texto: "Da 50 clics rápidos",
+      meta: 50,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 2,
+      requiereHupi: false,
+    },
+    {
+      id: "m_rock3",
+      texto: "Haz rockear a Hupi 3 veces",
+      meta: 3,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 3,
+      requiereHupi: true,
+    },
+    {
+      id: "m_study3",
+      texto: "Haz estudiar a Hupi 3 veces",
+      meta: 3,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 5,
+      requiereHupi: true,
+    },
+    {
+      id: "m_fast150",
+      texto: "Da 150 clics rápidos",
+      meta: 150,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 5,
+      requiereHupi: false,
+    },
+    {
+      id: "m_rock6",
+      texto: "Haz rockear a Hupi 6 veces",
+      meta: 6,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 6,
+      requiereHupi: true,
+    },
+    {
+      id: "m_study5",
+      texto: "Haz estudiar a Hupi 5 veces",
+      meta: 5,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 8,
+      requiereHupi: true,
+    },
+    {
+      id: "m_fast300",
+      texto: "Da 300 clics rápidos",
+      meta: 300,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 8,
+      requiereHupi: false,
+    },
+    {
+      id: "m_rock10",
+      texto: "Haz rockear a Hupi 10 veces",
+      meta: 10,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 9,
+      requiereHupi: true,
+    },
+    {
+      id: "m_max",
+      texto: "Alcanza el Nivel Máximo",
+      meta: 2000,
+      actual: 0,
+      completada: false,
+      nivelRequerido: 11,
+      requiereHupi: false,
+    },
   ];
 
   function renderMisiones() {
@@ -428,7 +589,10 @@ window.addEventListener("load", () => {
       if (porcentaje > 100) porcentaje = 100;
       if (porcentaje < 0) porcentaje = 0;
 
-      let nombreMision = state.clicks >= 1000 ? "Que sienta tu amor" : `Nivel ${sigNivelIndex + 1}`;
+      let nombreMision =
+        state.clicks >= 1000
+          ? "Que sienta tu amor"
+          : `Nivel ${sigNivelIndex + 1}`;
 
       misionPrincipalHtml = `
         <div class="mission-item" style="border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px;">
@@ -442,7 +606,9 @@ window.addEventListener("load", () => {
     let secundariasActivas = misiones
       .filter((m) => {
         let hupiVisible = !m.requiereHupi || state.clicks >= 29;
-        return !m.completada && m.nivelRequerido <= nivelActualIndex && hupiVisible;
+        return (
+          !m.completada && m.nivelRequerido <= nivelActualIndex && hupiVisible
+        );
       })
       .slice(0, 2);
 
@@ -477,12 +643,19 @@ window.addEventListener("load", () => {
     else if (estado === "jumping") sideImage.classList.add("estado-jumping");
 
     clearTimeout(temporizadorEstadoMini);
-    if (duracion > 0) temporizadorEstadoMini = setTimeout(() => cambiarEstadoMiniHupi("idle"), duracion);
+    if (duracion > 0)
+      temporizadorEstadoMini = setTimeout(
+        () => cambiarEstadoMiniHupi("idle"),
+        duracion,
+      );
   }
 
   function showItemNotification() {
+    if (easterEggJuegoActivo) return;
     notificacionSound.currentTime = 0;
-    notificacionSound.play().catch((e) => console.log("Audio de notificación no encontrado"));
+    notificacionSound
+      .play()
+      .catch((e) => console.log("Audio de notificación no encontrado"));
     cambiarEstadoMiniHupi("jumping", 2000);
   }
 
@@ -502,8 +675,10 @@ window.addEventListener("load", () => {
       playRandomMartilloSound();
     } else {
       cambiarEstadoMiniHupi("rock", 6000);
-      rockSound.currentTime = 0;
-      rockSound.play().catch((err) => {});
+      if (!easterEggJuegoActivo) {
+        rockSound.currentTime = 0;
+        rockSound.play().catch((err) => {});
+      }
       rockTotal++;
       actualizarMisiones();
     }
@@ -537,7 +712,7 @@ window.addEventListener("load", () => {
 
   function animarDiario() {
     if (diarioBouncing.style.display === "none") return;
-    
+
     const rect = diarioBouncing.getBoundingClientRect();
     const maxX = window.innerWidth - rect.width;
     const maxY = window.innerHeight - rect.height;
@@ -607,9 +782,15 @@ window.addEventListener("load", () => {
         let datos = JSON.parse(sesionGuardada);
         if (datos && datos.puntos > 5) {
           let records = JSON.parse(localStorage.getItem("lux_records")) || [];
-          records.push({ nombre: String(datos.nombre), puntos: Number(datos.puntos) });
+          records.push({
+            nombre: String(datos.nombre),
+            puntos: Number(datos.puntos),
+          });
           records.sort((a, b) => Number(b.puntos) - Number(a.puntos));
-          localStorage.setItem("lux_records", JSON.stringify(records.slice(0, 5)));
+          localStorage.setItem(
+            "lux_records",
+            JSON.stringify(records.slice(0, 5)),
+          );
         }
         sessionStorage.removeItem("lux_sesion_actual");
       }
@@ -619,16 +800,31 @@ window.addEventListener("load", () => {
   procesarSesionAnterior();
 
   btnEmpezar.addEventListener("click", () => {
-    if (probabilidadInicio !== 1) {
+    if (easterEggJuegoActivo) {
+      if (ambienteAudio.paused) {
+        ambienteAudio.play().catch(() => {});
+      }
+    } else {
       try {
         introAudio.currentTime = 0;
-        introAudio.play().catch((err) => console.warn("🎵 Audio de bienvenida bloqueado:", err.name, err.message));
+        introAudio
+          .play()
+          .catch((err) =>
+            console.warn(
+              "🎵 Audio de bienvenida bloqueado:",
+              err.name,
+              err.message,
+            ),
+          );
       } catch (err) {
         console.warn("🎵 Error al reproducir bienvenida:", err);
       }
     }
 
-    playerName = inputNombre.value.trim() === "" ? "Anónimo" : inputNombre.value.trim().substring(0, 12);
+    playerName =
+      inputNombre.value.trim() === ""
+        ? "Anónimo"
+        : inputNombre.value.trim().substring(0, 12);
     pantallaInicio.style.display = "none";
     juegoIniciado = true;
 
@@ -641,13 +837,13 @@ window.addEventListener("load", () => {
     clickPower = 1;
     hammerActive = false;
     isSwinging = false;
-    nextPrestigeThreshold = 8000;
+    nextPrestigeThreshold = 4000;
     isAskingPrestige = false;
 
     bgMusic.pause();
     bgMusic.currentTime = 0;
 
-    resetearDiario(); // 🎭 Reiniciar diario
+    resetearDiario();
 
     renderInventory();
     actualizarUI();
@@ -659,7 +855,9 @@ window.addEventListener("load", () => {
 
   function abrirMenuTrampas() {
     if (!juegoIniciado) return;
-    let codigo = prompt("MODO DESARROLLADOR\n\nEscribe:\n- Un número (ej. 500)\n- 'max' (2100 clics)\n- 'reset' (Volver a 0)");
+    let codigo = prompt(
+      "MODO DESARROLLADOR\n\nEscribe:\n- Un número (ej. 500)\n- 'max' (2100 clics)\n- 'reset' (Volver a 0)",
+    );
     if (codigo === null) return;
     codigo = codigo.toLowerCase().trim();
 
@@ -686,7 +884,7 @@ window.addEventListener("load", () => {
       rockTotal = 0;
       studyTotal = 0;
       clicsRapidosTotales = 0;
-      nextPrestigeThreshold = 8000;
+      nextPrestigeThreshold = 4000;
       isAskingPrestige = false;
       hammerActive = false;
       hammerImage.style.display = "none";
@@ -711,21 +909,61 @@ window.addEventListener("load", () => {
       resetearDiario();
 
       if (state.clicks < 250) {
-        unlockedLevel = 0; levelStartClicks = 0; targetClicks = 250;
+        unlockedLevel = 0;
+        levelStartClicks = 0;
+        targetClicks = 250;
       } else if (state.clicks < 500) {
-        unlockedLevel = 1; levelStartClicks = 250; targetClicks = 500;
-        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
+        unlockedLevel = 1;
+        levelStartClicks = 250;
+        targetClicks = 500;
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
       } else if (state.clicks < 750) {
-        unlockedLevel = 2; levelStartClicks = 500; targetClicks = 750;
-        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
+        unlockedLevel = 2;
+        levelStartClicks = 500;
+        targetClicks = 750;
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
       } else if (state.clicks < 1000) {
-        unlockedLevel = 3; levelStartClicks = 750; targetClicks = 1000;
-        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
-        inventoryItems.push({ name: "Matamoscas", type: "flyswatter", img: "img/matamoscas.png", equipped: false });
+        unlockedLevel = 3;
+        levelStartClicks = 750;
+        targetClicks = 1000;
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
+        inventoryItems.push({
+          name: "Matamoscas",
+          type: "flyswatter",
+          img: "img/matamoscas.png",
+          equipped: false,
+        });
       } else if (state.clicks < 1250) {
-        unlockedLevel = 4; levelStartClicks = 1000; targetClicks = 1250;
-        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
-        inventoryItems.push({ name: "Matamoscas", type: "flyswatter", img: "img/matamoscas.png", equipped: false });
+        unlockedLevel = 4;
+        levelStartClicks = 1000;
+        targetClicks = 1250;
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
+        inventoryItems.push({
+          name: "Matamoscas",
+          type: "flyswatter",
+          img: "img/matamoscas.png",
+          equipped: false,
+        });
       } else {
         unlockedLevel = 5 + Math.floor((state.clicks - 1250) / 100);
         if (unlockedLevel > 11) unlockedLevel = 11;
@@ -733,9 +971,24 @@ window.addEventListener("load", () => {
         targetClicks = 1250 + (unlockedLevel - 4) * 100;
         if (targetClicks <= state.clicks) targetClicks = state.clicks + 100;
 
-        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
-        inventoryItems.push({ name: "Matamoscas", type: "flyswatter", img: "img/matamoscas.png", equipped: false });
-        inventoryItems.push({ name: "Martillo", type: "hammer", img: "img/martillo.png", equipped: false });
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
+        inventoryItems.push({
+          name: "Matamoscas",
+          type: "flyswatter",
+          img: "img/matamoscas.png",
+          equipped: false,
+        });
+        inventoryItems.push({
+          name: "Martillo",
+          type: "hammer",
+          img: "img/martillo.png",
+          equipped: false,
+        });
       }
 
       updateBackgroundMusic(unlockedLevel);
@@ -783,18 +1036,66 @@ window.addEventListener("load", () => {
   tituloH1.addEventListener("pointerleave", cancelarPresion);
 
   const niveles = [
-    { limite: 0, normal: "img/hupiframes/hupi frames 1.png", presionada: "img/hupiframes/hupi frames 2.png" },
-    { limite: 250, normal: "img/hupiframes/hupi frames 3.png", presionada: "img/hupiframes/hupi frames 4.png" },
-    { limite: 500, normal: "img/hupiframes/hupi frames 5.png", presionada: "img/hupiframes/hupi frames 6.png" },
-    { limite: 750, normal: "img/hupiframes/hupi frames 7.png", presionada: "img/hupiframes/hupi frames 8.png" },
-    { limite: 1000, normal: "img/hupiframes/hupi frames 9.png", presionada: "img/hupiframes/hupi frames 10.png" },
-    { limite: 1250, normal: "img/hupiframes/hupi frames 11.png", presionada: "img/hupiframes/hupi frames 12.png" },
-    { limite: 1350, normal: "img/hupiframes/hupi frames 13.png", presionada: "img/hupiframes/hupi frames 14.png" },
-    { limite: 1450, normal: "img/hupiframes/hupi frames 15.png", presionada: "img/hupiframes/hupi frames 16.png" },
-    { limite: 1550, normal: "img/hupiframes/hupi frames 17.png", presionada: "img/hupiframes/hupi frames 18.png" },
-    { limite: 1650, normal: "img/hupiframes/hupi frames 19.png", presionada: "img/hupiframes/hupi frames 20.png" },
-    { limite: 1750, normal: "img/hupiframes/hupi frames 21.png", presionada: "img/hupiframes/hupi frames 22.png" },
-    { limite: 1850, normal: "img/hupiframes/hupi frames 23.png", presionada: "img/hupiframes/hupi frames 24.png" },
+    {
+      limite: 0,
+      normal: "img/hupiframes/hupi frames 1.png",
+      presionada: "img/hupiframes/hupi frames 2.png",
+    },
+    {
+      limite: 250,
+      normal: "img/hupiframes/hupi frames 3.png",
+      presionada: "img/hupiframes/hupi frames 4.png",
+    },
+    {
+      limite: 500,
+      normal: "img/hupiframes/hupi frames 5.png",
+      presionada: "img/hupiframes/hupi frames 6.png",
+    },
+    {
+      limite: 750,
+      normal: "img/hupiframes/hupi frames 7.png",
+      presionada: "img/hupiframes/hupi frames 8.png",
+    },
+    {
+      limite: 1000,
+      normal: "img/hupiframes/hupi frames 9.png",
+      presionada: "img/hupiframes/hupi frames 10.png",
+    },
+    {
+      limite: 1250,
+      normal: "img/hupiframes/hupi frames 11.png",
+      presionada: "img/hupiframes/hupi frames 12.png",
+    },
+    {
+      limite: 1350,
+      normal: "img/hupiframes/hupi frames 13.png",
+      presionada: "img/hupiframes/hupi frames 14.png",
+    },
+    {
+      limite: 1450,
+      normal: "img/hupiframes/hupi frames 15.png",
+      presionada: "img/hupiframes/hupi frames 16.png",
+    },
+    {
+      limite: 1550,
+      normal: "img/hupiframes/hupi frames 17.png",
+      presionada: "img/hupiframes/hupi frames 18.png",
+    },
+    {
+      limite: 1650,
+      normal: "img/hupiframes/hupi frames 19.png",
+      presionada: "img/hupiframes/hupi frames 20.png",
+    },
+    {
+      limite: 1750,
+      normal: "img/hupiframes/hupi frames 21.png",
+      presionada: "img/hupiframes/hupi frames 22.png",
+    },
+    {
+      limite: 1850,
+      normal: "img/hupiframes/hupi frames 23.png",
+      presionada: "img/hupiframes/hupi frames 24.png",
+    },
   ];
 
   const fondos = [
@@ -820,7 +1121,8 @@ window.addEventListener("load", () => {
       tituloH1.textContent = "no quiero amar";
       tituloH1.style.color = "#ff0000";
       tituloH1.style.textShadow = "0 0 10px red, 0 0 20px darkred";
-      fondoDiv.style.filter = "sepia(1) hue-rotate(-50deg) saturate(2) brightness(0.5)";
+      fondoDiv.style.filter =
+        "sepia(1) hue-rotate(-50deg) saturate(2) brightness(0.5)";
     } else {
       if (state.clicks >= 1000) tituloH1.textContent = "Que sienta tu amor";
       else tituloH1.textContent = "Acaricia a Hupibot";
@@ -848,7 +1150,8 @@ window.addEventListener("load", () => {
     }
 
     if (state.clicks >= 29) {
-      if (sideImage.style.display === "none" || sideImage.style.display === "") sideImage.style.display = "block";
+      if (sideImage.style.display === "none" || sideImage.style.display === "")
+        sideImage.style.display = "block";
     } else {
       sideImage.style.display = "none";
     }
@@ -877,11 +1180,19 @@ window.addEventListener("load", () => {
   }
 
   function checkPrestige() {
-    if (hammerActive && state.clicks >= nextPrestigeThreshold && !isAskingPrestige) {
+    if (
+      hammerActive &&
+      state.clicks >= nextPrestigeThreshold &&
+      !isAskingPrestige
+    ) {
       isAskingPrestige = true;
 
       setTimeout(() => {
-        if (confirm(`¡Has alcanzado los ${nextPrestigeThreshold} clics!\n\n¿Quieres reemplazar a la Hupibot descompuesta?`)) {
+        if (
+          confirm(
+            `¡Has alcanzado los ${nextPrestigeThreshold} clics!\n\n¿Quieres reemplazar a la Hupibot descompuesta?`,
+          )
+        ) {
           playRandomReinicioSound();
 
           hupibotsCount++;
@@ -891,7 +1202,7 @@ window.addEventListener("load", () => {
           unlockedLevel = 0;
           targetClicks = 250;
           levelStartClicks = 0;
-          nextPrestigeThreshold = 8000;
+          nextPrestigeThreshold = 4000;
 
           inventoryItems = [];
           hammerActive = false;
@@ -920,7 +1231,8 @@ window.addEventListener("load", () => {
     isSwinging = true;
     clearTimeout(hammerFallTimer);
 
-    hammerImage.style.transition = "transform 0.15s cubic-bezier(0.6, -0.28, 0.735, 0.045)";
+    hammerImage.style.transition =
+      "transform 0.15s cubic-bezier(0.6, -0.28, 0.735, 0.045)";
     hammerImage.style.transform = `translate(-100px, 80px) rotate(-70deg)`;
 
     setTimeout(() => {
@@ -928,11 +1240,18 @@ window.addEventListener("load", () => {
       state.clicks += ganancia;
       checkDiario();
 
-      hammerHitSound.currentTime = 0;
-      hammerHitSound.play().catch((e) => {});
+      if (!easterEggJuegoActivo) {
+        hammerHitSound.currentTime = 0;
+        hammerHitSound.play().catch((e) => {});
+      }
 
       triggerGlitch();
-      mostrarFlotante(window.innerWidth / 2, window.innerHeight / 2, `+${ganancia}`, "#ffcc00");
+      mostrarFlotante(
+        window.innerWidth / 2,
+        window.innerHeight / 2,
+        `+${ganancia}`,
+        "#ffcc00",
+      );
 
       hammerCharge = 0;
 
@@ -961,17 +1280,32 @@ window.addEventListener("load", () => {
 
       if (nextLevel === 1) {
         unlockedLevel = 1;
-        inventoryItems.push({ name: "Guante de lana", type: "glove", img: "img/guante.png", equipped: false });
+        inventoryItems.push({
+          name: "Guante de lana",
+          type: "glove",
+          img: "img/guante.png",
+          equipped: false,
+        });
         renderInventory();
         showItemNotification();
       } else if (nextLevel === 3) {
         unlockedLevel = 3;
-        inventoryItems.push({ name: "Matamoscas", type: "flyswatter", img: "img/matamoscas.png", equipped: false });
+        inventoryItems.push({
+          name: "Matamoscas",
+          type: "flyswatter",
+          img: "img/matamoscas.png",
+          equipped: false,
+        });
         renderInventory();
         showItemNotification();
       } else if (nextLevel === 5) {
         isLocked = true;
-        inventoryItems.push({ name: "Martillo", type: "hammer", img: "img/martillo.png", equipped: false });
+        inventoryItems.push({
+          name: "Martillo",
+          type: "hammer",
+          img: "img/martillo.png",
+          equipped: false,
+        });
         renderInventory();
         showItemNotification();
         break;
@@ -988,11 +1322,13 @@ window.addEventListener("load", () => {
     }
 
     if (leveledUp) {
-      if (isHammer) {
-        levelUpSound.currentTime = 0;
-        levelUpSound.play().catch((e) => {});
-      } else {
-        playThickMetalSound();
+      if (!easterEggJuegoActivo) {
+        if (isHammer) {
+          levelUpSound.currentTime = 0;
+          levelUpSound.play().catch((e) => {});
+        } else {
+          playThickMetalSound();
+        }
       }
       triggerGlitch();
     }
@@ -1004,14 +1340,27 @@ window.addEventListener("load", () => {
 
     if (isSwinging) return;
 
+    // 🎭 LÓGICA DEL EASTER EGG AL LLEGAR A 6 CLICS
     if (easterEggJuegoActivo) {
       clicsEasterEgg++;
       if (clicsEasterEgg >= 6) {
-        window.open("", "_self", "");
-        window.close();
+        // 1. Cambiar el fondo a los ojos (se pone atrás automáticamente)
+        fondoDiv.style.backgroundImage = "url('img/background/ojos.jpg')";
+
+        // 2. Quitar filtros y sombras para que los ojos se vean con claridad
+        fondoDiv.style.boxShadow = "none";
+        fondoDiv.style.filter = "none";
+
+        // 3. Esperar 3 segundos y luego ejecutar el cierre
         setTimeout(() => {
-          document.body.innerHTML = "<h1 style='color:white; font-family:sans-serif; text-align:center; margin-top:20%;'>El vacío te ha consumido.</h1>";
-        }, 100);
+          window.open("", "_self", "");
+          window.close();
+          setTimeout(() => {
+            document.body.innerHTML =
+              "<h1 style='color:white; font-family:sans-serif; text-align:center; margin-top:20%;'>El vacío te ha consumido.</h1>";
+          }, 100);
+        }, 3000);
+
         return;
       }
     }
@@ -1084,7 +1433,11 @@ window.addEventListener("load", () => {
     }
 
     let nextThreshold = targetClicks;
-    if (state.clicks + clickPower >= nextThreshold && !isLocked && unlockedLevel < 11) {
+    if (
+      state.clicks + clickPower >= nextThreshold &&
+      !isLocked &&
+      unlockedLevel < 11
+    ) {
       state.clicks = nextThreshold;
     } else {
       state.clicks += clickPower;
@@ -1097,12 +1450,16 @@ window.addEventListener("load", () => {
     if (nivelVisualIndex > 11) nivelVisualIndex = 11;
     let nivelVisualActual = niveles[nivelVisualIndex];
 
-    squeakSound.currentTime = 0;
-    squeakSound.play().catch((e) => console.log("Audio de juguete bloqueado"));
+    if (!easterEggJuegoActivo) {
+      squeakSound.currentTime = 0;
+      squeakSound
+        .play()
+        .catch((e) => console.log("Audio de juguete bloqueado"));
 
-    if (unlockedLevel < 5) {
-      if (Math.floor(Math.random() * 40) === 0) {
-        playRandomDialog();
+      if (unlockedLevel < 5) {
+        if (Math.floor(Math.random() * 40) === 0) {
+          playRandomDialog();
+        }
       }
     }
 
@@ -1110,7 +1467,10 @@ window.addEventListener("load", () => {
     else btnImage.src = nivelVisualActual.presionada;
 
     try {
-      sessionStorage.setItem("lux_sesion_actual", JSON.stringify({ nombre: playerName, puntos: state.clicks }));
+      sessionStorage.setItem(
+        "lux_sesion_actual",
+        JSON.stringify({ nombre: playerName, puntos: state.clicks }),
+      );
     } catch (e) {}
 
     actualizarUI();
